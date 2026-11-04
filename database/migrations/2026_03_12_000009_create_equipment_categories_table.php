@@ -1,0 +1,39 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('equipment_categories', function (Blueprint $table) {
+            $table->id();
+            $table->string('name', 120);
+            $table->string('slug', 120)->unique();
+            $table->boolean('is_active')->default(true);
+            $table->timestamps();
+        });
+
+        $now = now();
+        $defaults = ['PC', 'Laptop', 'Impresora', 'Proyector', 'Monitor', 'Otro'];
+
+        foreach ($defaults as $name) {
+            DB::table('equipment_categories')->insert([
+                'name' => $name,
+                'slug' => Str::slug($name),
+                'is_active' => true,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
+        }
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('equipment_categories');
+    }
+};

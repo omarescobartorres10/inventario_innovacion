@@ -1,0 +1,26 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+    --bg: #f4efe6;
+    --panel: rgba(255, 255, 255, 0.88);
+    --ink: #182531;
+    --line: rgba(24, 37, 49, 0.12);
+}
+
+body {
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at top left, rgba(15, 118, 110, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(180, 83, 9, 0.18), transparent 24%),
+        linear-gradient(180deg, #fbf8f1 0%, var(--bg) 100%);
+    color: var(--ink);
+}
