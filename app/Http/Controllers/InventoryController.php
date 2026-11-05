@@ -30,8 +30,8 @@ class InventoryController extends Controller
                 ->limit(5)
                 ->get(),
             'lowStockItems' => $this->itemsWithLocationStockQuery()
-                ->havingRaw('(bodega_stock + oficina_stock) <= 3')
-                ->orderByRaw('(bodega_stock + oficina_stock) asc')
+                //->havingRaw('(bodega_stock + oficina_stock) <= 3')
+                //->orderByRaw('(bodega_stock + oficina_stock) asc')
                 ->limit(6)
                 ->get(),
             'movementTypes' => $this->movementTypes(),
