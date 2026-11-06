@@ -637,7 +637,7 @@ class InventoryController extends Controller
             ];
         }
 
-        return $this->csvResponse($lines, 'resumen_inventario_innovacion.csv');
+        return $this->excelResponse($lines, 'resumen_inventario_innovacion.xls');
     }
 
     public function exportItemsSummaryPdf(): Response
@@ -672,7 +672,7 @@ class InventoryController extends Controller
         $lines[] = ['Total de insumos', $items->count()];
         $lines[] = ['Stock global', $items->sum('total_stock')];
 
-        return $this->csvResponse($lines, 'resumen_total_por_insumo.csv');
+        return $this->excelResponse($lines, 'resumen_total_por_insumo.xls');
     }
 
     public function storeItem(Request $request): RedirectResponse
@@ -1080,6 +1080,39 @@ class InventoryController extends Controller
         return response($content, 200, [
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+        ]);
+    }
+        private function excelResponse(array $lines, string $filename)
+    {
+        // Construimos una tabla HTML con bordes
+        $html = '<html><head><meta charset="utf-8"></head><body>';
+        $html .= '<table border="1" cellpadding="5" cellspacing="0" style="font-family: Arial, sans-serif; font-size: 12px;">';
+        
+        foreach ($lines as $line) {
+            // Si la fila está vacía (los espacios entre secciones), ponemos una celda vacía
+            if (empty($line)) {
+                $html .= '<tr><td colspan="7" style="background-color: #f0f0f0;">&nbsp;</td></tr>';
+                continue;
+            }
+            
+            $html .= '<tr>';
+            foreach ($line as $cell) {
+                // Si es un encabezado (letras), lo ponemos en negrita
+                $isHeader = is_string($cell) && !is_numeric($cell);
+                $style = $isHeader ? ' style="font-weight: bold; background-color: #e0e0e0;"' : '';
+                
+                $html .= '<td' . $style . '>' . htmlspecialchars((string)($cell ?? '')) . '</td>';
+            }
+            $html .= '</tr>';
+        }
+        
+        $html .= '</table></body></html>';
+
+        // Descargamos el archivo con extensión .xls (Excel lo abrirá perfectamente)
+        return response($html, 200, [
+            'Content-Type' => 'application/vnd.ms-excel',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control' => 'max-age=0',
         ]);
     }
 }
