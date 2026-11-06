@@ -1082,33 +1082,67 @@ class InventoryController extends Controller
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
-        private function excelResponse(array $lines, string $filename)
+            private function excelResponse(array $lines, string $filename)
     {
-        // Construimos una tabla HTML con bordes
-        $html = '<html><head><meta charset="utf-8"></head><body>';
-        $html .= '<table border="1" cellpadding="5" cellspacing="0" style="font-family: Arial, sans-serif; font-size: 12px;">';
-        
+        // Estilos CSS para simular un Excel profesional
+        $html = '<html><head><meta charset="utf-8"><style>
+            table { font-family: Calibri, Arial, sans-serif; border-collapse: collapse; width: 100%; font-size: 11pt; }
+            th, td { border: 1px solid #d1d5db; padding: 8px; }
+            .title { font-size: 16pt; font-weight: bold; text-align: center; background-color: #1d2d42; color: #ffffff; padding: 12px; border: none; }
+            .subtitle { font-size: 12pt; font-weight: bold; background-color: #e5e7eb; color: #111827; padding: 8px; }
+            .header { background-color: #374151; color: #ffffff; font-weight: bold; text-align: center; }
+            .data-row { background-color: #ffffff; }
+            .data-row:nth-child(even) { background-color: #f9fafb; }
+            .text-left { text-align: left; } 
+            .text-center { text-align: center; } 
+            .text-right { text-align: right; } 
+        </style></head><body><table>';
+
+        $maxCols = 7; // Columnas máximas (la tabla de movimientos tiene 7)
+        $rowCount = 0;
+
         foreach ($lines as $line) {
-            // Si la fila está vacía (los espacios entre secciones), ponemos una celda vacía
+            // Filas vacías de separación
             if (empty($line)) {
-                $html .= '<tr><td colspan="7" style="background-color: #f0f0f0;">&nbsp;</td></tr>';
+                $html .= '<tr><td colspan="' . $maxCols . '" style="border:none; height: 15px;"></td></tr>';
                 continue;
             }
-            
-            $html .= '<tr>';
+
+            // Detectar si es un título, subtítulo o encabezado
+            $isTitle = (count($line) === 1 && stripos($line[0], 'resumen') !== false);
+            $isSubtitle = (count($line) === 1 && !$isTitle);
+            $isHeader = (in_array('Nombre', $line) || in_array('Indicador', $line) || in_array('Fecha', $line));
+
+            $trClass = 'data-row';
+            if ($isTitle) $trClass = 'title';
+            elseif ($isSubtitle) $trClass = 'subtitle';
+            elseif ($isHeader) $trClass = 'header';
+
+            // Si la fila tiene solo 1 columna (títulos), la expandimos
+            if (count($line) === 1) {
+                $html .= '<tr class="' . $trClass . '"><td colspan="' . $maxCols . '" class="text-left">' . htmlspecialchars((string)$line[0]) . '</td></tr>';
+                continue;
+            }
+
+            // Filas normales de datos
+            $html .= '<tr class="' . $trClass . '">';
             foreach ($line as $cell) {
-                // Si es un encabezado (letras), lo ponemos en negrita
-                $isHeader = is_string($cell) && !is_numeric($cell);
-                $style = $isHeader ? ' style="font-weight: bold; background-color: #e0e0e0;"' : '';
-                
-                $html .= '<td' . $style . '>' . htmlspecialchars((string)($cell ?? '')) . '</td>';
+                $val = (string)($cell ?? '');
+                if ($isHeader) {
+                    $html .= '<td class="text-center">' . htmlspecialchars($val) . '</td>';
+                } else {
+                    // Si es un número, lo alineamos a la derecha, si es texto a la izquierda
+                    $align = is_numeric($val) ? 'text-right' : 'text-left';
+                    $html .= '<td class="' . $align . '">' . htmlspecialchars($val) . '</td>';
+                }
             }
             $html .= '</tr>';
+            $rowCount++;
         }
-        
+
         $html .= '</table></body></html>';
 
-        // Descargamos el archivo con extensión .xls (Excel lo abrirá perfectamente)
+        // Descargar el archivo con extensión .xls
         return response($html, 200, [
             'Content-Type' => 'application/vnd.ms-excel',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
