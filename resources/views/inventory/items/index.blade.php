@@ -37,8 +37,8 @@
                 <a href="{{ route('inventory.items.index') }}" class="button-link dark"><i class="fa-solid fa-eraser"></i> Limpiar</a>
             </div>
         </form>
-
         <div class="datatable-wrap">
+            <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
@@ -98,6 +98,7 @@
                     @endforelse
                 </tbody>
             </table>
+            </div>
         </div>
 
         @include('inventory.partials.pagination', ['paginator' => $items])

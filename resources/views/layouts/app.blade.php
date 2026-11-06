@@ -885,6 +885,99 @@
                 grid-template-columns: 1fr;
             }
 
+                    /* --- MEJORAS RESPONSIVE PARA MÓVILES --- */
+        
+        /* 1. Contenedor para hacer las tablas deslizables */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: 1rem;
+        }
+
+        /* 2. Estilos base del botón hamburguesa (oculto en PC) */
+        .sidebar-toggle { display: none; }
+        .sidebar-toggle-label { display: none; }
+
+        /* 3. Nuevo breakpoint para celulares y tablets pequeñas */
+        @media (max-width: 768px) {
+            /* Mostrar el botón hamburguesa fijo arriba a la izquierda */
+            .sidebar-toggle-label {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: fixed;
+                top: 15px;
+                left: 15px;
+                z-index: 1000;
+                background: var(--dark);
+                color: white;
+                width: 45px;
+                height: 45px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                cursor: pointer;
+                font-size: 20px;
+            }
+
+            /* El layout principal se vuelve un bloque */
+            .app-shell {
+                display: block;
+            }
+
+            /* Ocultar el menú lateral por defecto */
+            .sidebar {
+                display: none;
+                width: 100%;
+                height: 100vh;
+                position: fixed;
+                top: 0;
+                left: 0;
+                z-index: 999;
+                overflow-y: auto;
+            }
+
+            /* Cuando el checkbox está marcado, mostrar el menú */
+            .sidebar-toggle:checked ~ .app-shell .sidebar {
+                display: block;
+            }
+
+            /* Ajustar los títulos y cabeceras para que no se aplasten */
+            .page-header {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                margin-top: 50px; /* Espacio para el botón hamburguesa */
+            }
+
+            .page-header h1 {
+                font-size: 28px;
+            }
+
+            .content {
+                padding: 15px 10px;
+            }
+
+            /* Los botones de acción se ponen uno debajo del otro */
+            .header-actions {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                gap: 8px;
+            }
+            
+            .header-actions a, .header-actions button {
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+
+            /* Reducir un poco el tamaño de las letras en tablas */
+            table { font-size: 12px; }
+            th, td { padding: 8px; }
+        }
+
             .sidebar {
                 border-right: 0;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -913,6 +1006,11 @@
     </style>
 </head>
 <body>
+        <!-- Botón de menú para móviles -->
+    <input type="checkbox" id="sidebar-toggle" class="sidebar-toggle">
+    <label for="sidebar-toggle" class="sidebar-toggle-label">
+        <i class="fa-solid fa-bars"></i>
+    </label>
     <div class="app-shell">
         <aside class="sidebar">
             <div class="brand-block">
