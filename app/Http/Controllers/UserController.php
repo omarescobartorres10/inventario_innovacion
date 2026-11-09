@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -40,9 +41,12 @@ class UserController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ]);
 
+        
+
         $permissions = $validated['role'] === User::ROLE_ADMIN
             ? User::defaultModulePermissions()
             : User::normalizePermissions($validated['permissions'] ?? []);
+            
         $username = Str::lower(trim($validated['username']));
 
         User::query()->create([
@@ -77,6 +81,26 @@ class UserController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ]);
 
+
+        // 🛡️ PROTECCIÓN: Evitar que el admin se desactive o se quite el rol a sí mismo
+                if (Auth::id() === $user->id) {
+            // Si está intentando desactivarse
+            if (!($validated['is_active'] ?? false)) {
+                return back()->withErrors([
+                    'is_active' => 'No puedes desactivar tu propio usuario mientras estás autenticado.',
+                ])->withInput();
+            }
+            
+            // Si está intentando quitarse el rol de admin
+            if ($validated['role'] !== \App\Models\User::ROLE_ADMIN) {
+                return back()->withErrors([
+                    'role' => 'No puedes quitarte el rol de administrador a ti mismo.',
+                ])->withInput();
+            }
+        }
+
+        
+
         $permissions = $validated['role'] === User::ROLE_ADMIN
             ? User::defaultModulePermissions()
             : User::normalizePermissions($validated['permissions'] ?? []);
@@ -106,7 +130,7 @@ class UserController extends Controller
 
     public function destroy(User $user): RedirectResponse
     {
-        if (auth()->id() === $user->id) {
+                if (Auth::id() === $user->id) {
             return redirect()
                 ->route('users.index')
                 ->withErrors(['user' => 'No puedes eliminar tu propio usuario mientras estas autenticado.']);
