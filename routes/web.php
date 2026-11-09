@@ -12,7 +12,7 @@ Route::middleware(['guest', 'no.cache'])->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 });
 
-Route::middleware(['auth', 'no.cache'])->group(function () {
+Route::middleware(['auth', 'active', 'no.cache'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::get('/', function () {

@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'no.cache' => \App\Http\Middleware\PreventBackHistory::class,
             'permission' => \App\Http\Middleware\EnsureUserHasPermission::class,
+            'active' => \App\Http\Middleware\EnsureUserIsActive::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
