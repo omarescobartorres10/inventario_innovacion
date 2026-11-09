@@ -1267,6 +1267,32 @@
                 padding: 15px !important;
             }
         }
+
+                /* Estilos para inputs con error y mensajes de validación */
+        input.is-invalid {
+            border-color: var(--rose-text) !important;
+            background-color: #fff1f2 !important;
+        }
+        
+        input.is-invalid:focus {
+            box-shadow: 0 0 0 4px rgba(159, 18, 57, 0.15) !important;
+        }
+
+        .input-error {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--rose-text);
+            animation: fadeIn 0.2s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 
 </head>

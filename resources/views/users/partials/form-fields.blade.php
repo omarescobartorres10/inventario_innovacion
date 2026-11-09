@@ -2,6 +2,20 @@
     $formKey = $user?->id ? 'user-'.$user->id : 'user-new';
 @endphp
 
+@if ($errors->any())
+    <div class="message error" style="margin-bottom: 20px; padding: 12px 16px; display: flex; align-items: flex-start; gap: 10px; animation: fadeIn 0.3s ease;">
+        <i class="fa-solid fa-triangle-exclamation" style="margin-top: 2px;"></i>
+        <div>
+            <strong style="display: block; margin-bottom: 4px;">Por favor, corrige los siguientes errores:</strong>
+            <ul style="margin: 0; padding-left: 16px; font-size: 13px;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+@endif
+
 <div>
     <label for="user_name_{{ $formKey }}">Nombre</label>
     <input id="user_name_{{ $formKey }}" name="name" type="text" value="{{ old('name', $user?->name) }}" required>
@@ -91,11 +105,18 @@
 
 <div class="field-grid">
     <div>
-        <label for="user_password_{{ $formKey }}">Contrasena {{ $user ? '(dejar vacia para conservar)' : '' }}</label>
-        <input id="user_password_{{ $formKey }}" name="password" type="password" {{ $user ? '' : 'required' }}>
+        <label for="user_password_{{ $formKey }}">Contraseña {{ $user ? '(dejar vacía para conservar)' : '' }}</label>
+        <input id="user_password_{{ $formKey }}" name="password" type="password" {{ $user ? '' : 'required' }} class="@error('password') is-invalid @enderror">
+        
+        {{-- Lógica condicional: Si hay error, muestra el error. Si no, muestra la leyenda. --}}
+        {{-- @error('password')
+            <p class="input-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</p>
+        @else
+            <p class="subtle-note">Mínimo 8 caracteres.</p>
+        @enderror --}}
     </div>
     <div>
-        <label for="user_password_confirmation_{{ $formKey }}">Confirmar contrasena</label>
+        <label for="user_password_confirmation_{{ $formKey }}">Confirmar contraseña</label>
         <input id="user_password_confirmation_{{ $formKey }}" name="password_confirmation" type="password" {{ $user ? '' : 'required' }}>
     </div>
 </div>

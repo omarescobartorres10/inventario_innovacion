@@ -39,7 +39,14 @@ class UserController extends Controller
             'permissions.*' => ['string', Rule::in(User::acceptedPermissionValues())],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'is_active' => ['nullable', 'boolean'],
-        ]);
+        ], [
+            // 👇 MENSAJES PERSONALIZADOS 👇
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min' => 'La contraseña debe tener al menos :min caracteres.',
+            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
+            'email.unique' => 'Este correo ya está registrado en el sistema.',
+            'username.unique' => 'Este nombre de usuario ya está en uso.',
+        ] );
 
         
 
@@ -79,7 +86,14 @@ class UserController extends Controller
             'permissions.*' => ['string', Rule::in(User::acceptedPermissionValues())],
             'password' => ['nullable', 'string', 'min:8', 'confirmed'],
             'is_active' => ['nullable', 'boolean'],
-        ]);
+        ], [
+            // 👇 MENSAJES PERSONALIZADOS 👇
+            'password.required' => 'La contraseña es obligatoria.',
+            'password.min' => 'La contraseña debe tener al menos :min caracteres.',
+            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
+            'email.unique' => 'Este correo ya está registrado en el sistema.',
+            'username.unique' => 'Este nombre de usuario ya está en uso.',
+        ] );
 
 
         // 🛡️ PROTECCIÓN: Evitar que el admin se desactive o se quite el rol a sí mismo
