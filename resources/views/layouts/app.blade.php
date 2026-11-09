@@ -367,6 +367,67 @@
             table { font-size: 13px; }
             th, td { padding: 10px 8px; }
         }
+
+                /* ========================================================= */
+        /* FIX: Arreglar el desplegable de búsqueda (Select)         */
+        /* ========================================================= */
+        .search-select {
+            position: relative !important;
+            width: 100% !important;
+        }
+
+        .search-select-menu {
+            position: absolute !important;
+            top: calc(100% + 4px) !important;
+            left: 0 !important;
+            right: 0 !important;
+            max-height: 250px !important;
+            overflow-y: auto !important;
+            background: #ffffff !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15) !important;
+            padding: 8px !important;
+            z-index: 9999 !important;
+            display: block !important;
+            width: 100% !important;
+        }
+
+        .search-select-menu[hidden] {
+            display: none !important;
+        }
+
+        /* Forzar a que los botones dentro del menú se vean como texto normal */
+        .search-select-menu button,
+        .search-select-menu a,
+        .search-select-menu div,
+        .search-select-option {
+            display: block !important;
+            width: 100% !important;
+            text-align: left !important;
+            background: transparent !important;
+            color: var(--ink) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 10px 14px !important;
+            font-size: 14px !important;
+            font-weight: 500 !important;
+            box-shadow: none !important;
+            cursor: pointer !important;
+            margin: 0 0 2px 0 !important;
+            transform: none !important;
+            transition: background 0.2s ease !important;
+        }
+
+        /* Efecto al pasar el ratón por las opciones */
+        .search-select-menu button:hover,
+        .search-select-menu a:hover,
+        .search-select-menu div:hover,
+        .search-select-option:hover,
+        .search-select-option.is-active {
+            background: rgba(15, 118, 110, 0.08) !important;
+            color: var(--accent) !important;
+        }
     </style>
         
 </head>
