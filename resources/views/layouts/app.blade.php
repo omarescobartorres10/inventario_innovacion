@@ -52,58 +52,189 @@
             display: grid;
             grid-template-columns: 290px minmax(0, 1fr);
             min-height: 100vh;
+            align-items: start;
         }
 
+                /* --- SIDEBAR REDISEÑADO --- */
         .sidebar {
-            padding: 28px 22px;
+            display: flex;
+            flex-direction: column;
+            padding: 24px 16px;
             border-right: 1px solid var(--line);
-            background:
-                radial-gradient(circle at top, rgba(125, 211, 252, 0.12), transparent 28%),
-                linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(8, 15, 28, 0.98) 100%);
+            background: #0f172a; /* Un color sólido más limpio */
             color: #fff;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+
         }
 
-        .brand-block { display: grid; justify-items: start; gap: 12px; }
-        .brand-logo { display: block; width: 134px; max-width: 100%; height: auto; object-fit: contain; }
-        .brand-title { font-size: 24px; font-weight: 700; line-height: 1.1; }
-        .brand-subtitle { font-size: 12px; text-transform: uppercase; letter-spacing: 0.22em; color: #7dd3fc; }
+                
+        .sidebar::-webkit-scrollbar {
+            display: none; /* Para Chrome, Safari y Edge modernos */
+        }
 
-        /* --- Sidebar Navigation --- */
-        .nav { margin-top: 28px; display: grid; gap: 8px; }
+
+        .brand-block { 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            text-align: center;
+            gap: 12px; 
+            padding-bottom: 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        
+        .brand-logo { 
+            width: 80px; /* Logo más pequeño y elegante */
+            height: auto; 
+            object-fit: contain; 
+        }
+        
+        .brand-title { 
+            font-size: 18px; 
+            font-weight: 700; 
+            line-height: 1.2; 
+            letter-spacing: -0.3px;
+        }
+        
+        .brand-subtitle { 
+            font-size: 10px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.15em; 
+            color: #7dd3fc; 
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        /* Navegación limpia y consistente */
+        .nav { 
+            margin-top: 24px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 6px; 
+            flex-grow: 1; /* Empuja la tarjeta de usuario hacia abajo */
+        }
+        
         .nav a { 
             display: flex; 
             align-items: center; 
             gap: 12px; 
-            padding: 14px 18px; 
-            border-radius: 12px; 
+            padding: 12px 16px; 
+            border-radius: 8px; 
             background: transparent; 
-            border: 1px solid transparent; 
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
             transition: all 0.2s ease; 
         }
+        
         .nav a:hover { 
             background: rgba(255, 255, 255, 0.05); 
-            transform: translateX(4px);
+            color: #fff;
         }
+        
+        /* Estado Activo consistente (Adiós bordes raros) */
         .nav a.active { 
-            background: linear-gradient(90deg, rgba(125, 211, 252, 0.15) 0%, rgba(125, 211, 252, 0) 100%);
-            border-left: 4px solid #7dd3fc;
-            border-radius: 0 12px 12px 0;
-            padding-left: 14px;
+            background: rgba(125, 211, 252, 0.12); 
+            color: #7dd3fc;
+            font-weight: 600;
         }
-        .nav strong { display: block; font-size: 15px; font-weight: 500; }
-        .nav i { width: 20px; text-align: center; color: #7dd3fc; font-size: 16px; }
+        
+        .nav i { 
+            width: 20px; 
+            text-align: center; 
+            font-size: 16px; 
+            color: inherit; 
+        }
 
-        .sidebar-stats, .sidebar-user { margin-top: 28px; padding: 18px; border-radius: 16px; background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255,255,255,0.05); }
-        .sidebar-user strong { display: block; font-size: 15px; font-weight: 600; }
-        .sidebar-user span { display: block; margin-top: 4px; color: rgba(255, 255, 255, 0.6); font-size: 13px; }
-        .sidebar-stats h3 { margin: 0 0 14px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); }
+        /* Tarjeta de Usuario Premium */
+        .sidebar-user { 
+            margin-top: auto; /* La pega al fondo */
+            padding: 16px; 
+            border-radius: 12px; 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-        .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .mini-card { padding: 14px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); }
-        .mini-card small { display: block; font-size: 12px; color: rgba(255, 255, 255, 0.6); }
-        .mini-card strong { display: block; margin-top: 6px; font-size: 22px; font-weight: 600; }
-        .stat-head { display: flex; align-items: center; gap: 8px; }
-        .stat-head i { color: rgba(255, 255, 255, 0.6); font-size: 13px; }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent) 0%, #10b981 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0; /* Previene desbordamiento de texto */
+        }
+
+        .user-info strong { 
+            display: block; 
+            font-size: 13px; 
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-info span { 
+            display: block; 
+            color: rgba(255, 255, 255, 0.5); 
+            font-size: 11px; 
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-badge {
+            display: inline-block;
+            background: rgba(125, 211, 252, 0.15);
+            color: #7dd3fc;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Mini stats (Opcional, pero lo dejamos limpio) */
+        .sidebar-stats { 
+            margin-top: 16px; 
+            padding: 16px; 
+            border-radius: 12px; 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        
+        .sidebar-stats h3 { 
+            margin: 0 0 12px; 
+            font-size: 11px; 
+            letter-spacing: 0.08em; 
+            text-transform: uppercase; 
+            color: rgba(255, 255, 255, 0.5); 
+        }
+
+        .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .mini-card { padding: 12px; border-radius: 8px; background: rgba(0, 0, 0, 0.2); }
+        .mini-card small { display: block; font-size: 10px; color: rgba(255, 255, 255, 0.5); }
+        .mini-card strong { display: block; margin-top: 4px; font-size: 18px; font-weight: 700; color: #fff; }
+        .stat-head { display: flex; align-items: center; gap: 6px; }
+        .stat-head i { color: rgba(255, 255, 255, 0.5); font-size: 12px; }
 
         /* --- Content & Topbar --- */
         .content { padding: 30px; }
@@ -426,7 +557,7 @@
         .search-select-option:hover,
         .search-select-option.is-active {
             background: rgba(15, 118, 110, 0.08) !important;
-            color: var(--accent) !important;
+            color: var(--blue) !important;
         }
     </style>
         
@@ -504,11 +635,15 @@
                 @endif
             </nav>
 
-            <div class="sidebar-user">
-                <strong>{{ auth()->user()->name }}</strong>
-                <span>{{ auth()->user()->position ?: 'Usuario del sistema' }}</span>
-                <span>{{ auth()->user()->isAdmin() ? 'Administrador' : 'Acceso personalizado' }}</span>
-                <span>{{ auth()->user()->username }}</span>
+                        <div class="sidebar-user">
+                <div class="user-avatar">
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                </div>
+                <div class="user-info">
+                    <strong>{{ auth()->user()->name }}</strong>
+                    <span>{{ auth()->user()->position ?: 'Sin cargo asignado' }}</span>
+                    <div class="user-badge">{{ auth()->user()->isAdmin() ? 'Admin' : 'Usuario' }}</div>
+                </div>
             </div>
 
             <div class="sidebar-stats">
