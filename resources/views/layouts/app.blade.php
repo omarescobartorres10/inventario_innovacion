@@ -69,10 +69,9 @@
             overflow-y: auto;
 
         }
-
-                
+       
         .sidebar::-webkit-scrollbar {
-            display: none; /* Para Chrome, Safari y Edge modernos */
+            display: none; 
         }
 
 

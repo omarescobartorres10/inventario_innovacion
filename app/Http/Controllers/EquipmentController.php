@@ -140,7 +140,7 @@ class EquipmentController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        $visibleMovements = $movements->take(5);
+        $visibleMovements = $movements;
 
         $pdf = Pdf::loadView('equipments.exports.movements-pdf', [
             'movements' => $visibleMovements,
