@@ -108,12 +108,6 @@
         <label for="user_password_{{ $formKey }}">Contraseña {{ $user ? '(dejar vacía para conservar)' : '' }}</label>
         <input id="user_password_{{ $formKey }}" name="password" type="password" {{ $user ? '' : 'required' }} class="@error('password') is-invalid @enderror">
         
-        {{-- Lógica condicional: Si hay error, muestra el error. Si no, muestra la leyenda. --}}
-        {{-- @error('password')
-            <p class="input-error"><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</p>
-        @else
-            <p class="subtle-note">Mínimo 8 caracteres.</p>
-        @enderror --}}
     </div>
     <div>
         <label for="user_password_confirmation_{{ $formKey }}">Confirmar contraseña</label>

@@ -1306,7 +1306,7 @@
     <div class="app-shell">
         <aside class="sidebar">
             <div class="brand-block">
-                <img src="{{ asset('logoA.png') }}" alt="Logo institucional" class="brand-logo">
+                <img src="{{ asset('logo-blanco.png') }}" alt="Logo institucional" class="brand-logo">
                 <div>
                     <div class="brand-title">SISTEMA DE INVENTARIO</div>
                     <div class="brand-subtitle">Secretaria de Innovacion y Digitalizacion</div>
