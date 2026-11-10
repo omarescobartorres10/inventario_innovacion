@@ -16,6 +16,7 @@ class InventoryMovement extends Model
 
     protected $fillable = [
         'item_id',
+        'performed_by',
         'delivery_record_id',
         'from_location_id',
         'to_location_id',
@@ -36,6 +37,11 @@ class InventoryMovement extends Model
     public function item(): BelongsTo
     {
         return $this->belongsTo(Item::class);
+    }
+
+        public function performer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'performed_by');
     }
 
     public function deliveryRecord(): BelongsTo

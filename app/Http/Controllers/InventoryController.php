@@ -17,6 +17,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Auth;
 
 class InventoryController extends Controller
 {
@@ -574,7 +575,7 @@ class InventoryController extends Controller
         $summary = $this->summary();
         $items = $this->itemsWithLocationStockQuery()->orderBy('items.name')->get();
         $movements = InventoryMovement::query()
-            ->with(['item', 'fromLocation', 'toLocation'])
+            ->with(['item', 'fromLocation', 'toLocation', 'performer'])
             ->orderByDesc('id')
             ->limit(20)
             ->get();
@@ -595,7 +596,7 @@ class InventoryController extends Controller
         $summary = $this->summary();
         $items = $this->itemsWithLocationStockQuery()->orderBy('items.name')->get();
         $movements = InventoryMovement::query()
-            ->with(['item', 'fromLocation', 'toLocation'])
+            ->with(['item', 'fromLocation', 'toLocation', 'performer'])
             ->orderByDesc('id')
             ->limit(20)
             ->get();
@@ -623,7 +624,7 @@ class InventoryController extends Controller
 
         $lines[] = [];
         $lines[] = ['Ultimos movimientos'];
-        $lines[] = ['Fecha', 'Insumo', 'Tipo', 'Origen', 'Destino', 'Cantidad', 'Observaciones'];
+        $lines[] = ['Fecha', 'Insumo', 'Tipo', 'Origen', 'Destino', 'Cantidad', 'Observaciones', 'Registrado por'];
 
         foreach ($movements as $movement) {
             $lines[] = [
@@ -634,6 +635,7 @@ class InventoryController extends Controller
                 $movement->toLocation?->name ?? '-',
                 $movement->quantity,
                 $movement->notes ?? '',
+                $movement->performer?->name ?? 'Sistema', 
             ];
         }
 
@@ -751,7 +753,7 @@ class InventoryController extends Controller
             ->with('status', 'Insumo eliminado correctamente.');
     }
 
-    public function storeMovement(Request $request): RedirectResponse
+        public function storeMovement(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'item_id' => ['required', 'integer', Rule::exists('items', 'id')],
@@ -795,19 +797,35 @@ class InventoryController extends Controller
             }
         }
 
-        if (in_array($type, [InventoryMovement::TYPE_EXIT, InventoryMovement::TYPE_TRANSFER], true)) {
-            $availableStock = $this->stockForItemAtLocation($item->id, (int) $fromLocationId);
+        // 🛡️ INICIO DE TRANSACCIÓN Y BLOQUEO (RACE CONDITION FIX)
+        try {
+            DB::transaction(function () use ($validated, $item, $type, $fromLocationId) {
+                
+                // 1. Bloqueamos la fila del ítem en la BD para evitar concurrencia
+                Item::where('id', $item->id)->lockForUpdate()->first();
 
-            if ($validated['quantity'] > $availableStock) {
-                return back()
-                    ->withInput()
-                    ->withErrors([
-                        'quantity' => "La cantidad supera el stock disponible en la ubicacion seleccionada ({$availableStock} unidades).",
-                    ]);
-            }
+                // 2. Validamos el stock DENTRO de la transacción (nadie puede modificarlo mientras)
+                if (in_array($type, [InventoryMovement::TYPE_EXIT, InventoryMovement::TYPE_TRANSFER], true)) {
+                    $availableStock = $this->stockForItemAtLocation($item->id, (int) $fromLocationId);
+
+                    if ($validated['quantity'] > $availableStock) {
+                        // Lanzamos excepción para revertir todo
+                        throw \Illuminate\Validation\ValidationException::withMessages([
+                            'quantity' => "La cantidad supera el stock disponible en la ubicacion seleccionada ({$availableStock} unidades).",
+                        ]);
+                    }
+                }
+
+                // 3. Auditoría: Registramos qué usuario hizo el movimiento
+                $validated['performed_by'] = Auth::id();
+
+                // 4. Guardamos el movimiento
+                InventoryMovement::create($validated);
+            });
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Si falla el stock, devolvemos al usuario con el mensaje de error
+            return back()->withInput()->withErrors($e->errors());
         }
-
-        InventoryMovement::create($validated);
 
         return redirect()->route('inventory.movements.index')->with('status', 'Movimiento guardado correctamente.');
     }

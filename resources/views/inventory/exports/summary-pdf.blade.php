@@ -101,6 +101,7 @@
                 <th>Destino</th>
                 <th>Cantidad</th>
                 <th>Observaciones</th>
+                <th>Registrado por</th>
             </tr>
             @foreach ($movements as $movement)
                 <tr>
