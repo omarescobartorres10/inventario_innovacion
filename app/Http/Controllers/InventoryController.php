@@ -1100,7 +1100,7 @@ class InventoryController extends Controller
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
         ]);
     }
-            private function excelResponse(array $lines, string $filename)
+               private function excelResponse(array $lines, string $filename)
     {
         // Estilos CSS para simular un Excel profesional
         $html = '<html><head><meta charset="utf-8"><style>
@@ -1146,12 +1146,19 @@ class InventoryController extends Controller
             $html .= '<tr class="' . $trClass . '">';
             foreach ($line as $cell) {
                 $val = (string)($cell ?? '');
+                
                 if ($isHeader) {
                     $html .= '<td class="text-center">' . htmlspecialchars($val) . '</td>';
                 } else {
                     // Si es un número, lo alineamos a la derecha, si es texto a la izquierda
-                    $align = is_numeric($val) ? 'text-right' : 'text-left';
-                    $html .= '<td class="' . $align . '">' . htmlspecialchars($val) . '</td>';
+                    $isNumeric = is_numeric($val);
+                    $align = $isNumeric ? 'text-right' : 'text-left';
+                    
+                    // 🛡️ TRUCO: Si NO es un número, forzamos a Excel a tratarlo como texto puro.
+                    // Esto evita que modelos como "16M" se conviertan en "00:16:00".
+                    $style = $isNumeric ? '' : "mso-number-format:'\\@';";
+                    
+                    $html .= '<td class="' . $align . '" style="' . $style . '">' . htmlspecialchars($val) . '</td>';
                 }
             }
             $html .= '</tr>';
