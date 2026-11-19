@@ -66,8 +66,8 @@
             <article class="panel">
                 <div class="section-head">
                     <div>
-                        <h2>Actividad reciente</h2>
-                        <p>Ultimos 5 movimientos registrados en el sistema.</p>
+                        <h2><i class="fa-solid fa-clock-rotate-left"></i> Actividad reciente</h2>
+                        <p>Últimos 5 movimientos registrados en el sistema.</p>
                     </div>
                     <a href="{{ route('inventory.movements.index') }}" class="pill blue"><i class="fa-solid fa-list"></i> Ver todos</a>
                 </div>
@@ -75,21 +75,31 @@
                 <div class="movement-list">
                     @forelse ($recentMovements as $movement)
                         <div class="movement-item">
-                            <div>
-                                <div class="strong">{{ $movement->item?->name }} {{ $movement->item?->brand }} {{ $movement->item?->model }}</div>
-                                <p>{{ $movement->notes ?: 'Sin observaciones' }}</p>
+                            <div class="movement-icon {{ $movement->type === 'entry' ? 'entry' : 'exit' }}">
+                                <i class="fa-solid {{ $movement->type === 'entry' ? 'fa-arrow-down' : 'fa-arrow-up' }}"></i>
                             </div>
-                            <div>
-                                <span class="pill {{ $movement->type === 'entry' ? 'green' : 'amber' }}">{{ $movementTypes[$movement->type] }}</span>
-                                <p><span class="strong">{{ $movement->quantity }} {{ $movement->item?->unit }}</span></p>
-                                <p>
-                                    {{ $movement->fromLocation?->name ?? '-' }} -> {{ $movement->toLocation?->name ?? '-' }}
-                                </p>
-                                <p>{{ $movement->performed_at?->timezone(config('app.timezone'))->format('d/m/Y H:i') }}</p>
+                            <div class="movement-details">
+                                <div class="movement-name">{{ $movement->item?->name }}</div>
+                                <div class="movement-meta">
+                                    <span class="movement-quantity">{{ $movement->quantity }} {{ $movement->item?->unit }}</span>
+                                    <span class="movement-separator">·</span>
+                                    <span class="movement-location">{{ $movement->fromLocation?->name ?? 'N/A' }} → {{ $movement->toLocation?->name ?? 'N/A' }}</span>
+                                </div>
+                            </div>
+                            <div class="movement-type-badge">
+                                <span class="pill {{ $movement->type === 'entry' ? 'green' : 'amber' }}">
+                                    {{ $movement->type === 'entry' ? 'Entrada' : 'Salida' }}
+                                </span>
+                            </div>
+                            <div class="movement-time">
+                                {{ $movement->performed_at?->timezone(config('app.timezone'))->format('d/m/Y H:i') }}
                             </div>
                         </div>
                     @empty
-                        <div class="empty">Todavia no se han registrado movimientos.</div>
+                        <div class="movement-empty">
+                            <i class="fa-solid fa-inbox"></i>
+                            <span>Sin actividad reciente</span>
+                        </div>
                     @endforelse
                 </div>
             </article>
@@ -99,22 +109,41 @@
             <article class="panel">
                 <div class="section-head">
                     <div>
-                        <h2>Bajo stock</h2>
+                        <h2><i class="fa-solid fa-triangle-exclamation"></i> Bajo stock</h2>
                         <p>Insumos con existencias iguales o menores a 3 unidades.</p>
                     </div>
                     <a href="{{ route('inventory.items.index') }}" class="pill dark"><i class="fa-solid fa-boxes-stacked"></i> Ir a insumos</a>
                 </div>
 
-                <div class="list">
+                <div class="list-card">
                     @forelse ($lowStockItems as $item)
-                        <div class="list-card">
-                            <div class="strong">{{ $item->name }} {{ $item->brand }} {{ $item->model }}</div>
-                            <p class="muted">Unidad: {{ $item->unit }}</p>
-                            <p style="margin-top: 10px;"><span class="pill {{ $item->bodega_stock > 0 ? 'amber' : 'rose' }}">Bodega {{ $item->bodega_stock }}</span></p>
-                            <p style="margin-top: 10px;"><span class="pill {{ $item->oficina_stock > 0 ? 'blue' : 'rose' }}">Oficina {{ $item->oficina_stock }}</span></p>
+                        <div class="list-card-item">
+                            <div class="list-card-icon">
+                                <i class="fa-solid fa-box-open"></i>
+                            </div>
+                            <div class="list-card-details">
+                                <div class="list-card-name">{{ $item->name }}</div>
+                                <div class="list-card-meta">
+                                    <span>Bodega: <strong>{{ $item->bodega_stock }}</strong></span>
+                                    <span>·</span>
+                                    <span>Oficina: <strong>{{ $item->oficina_stock }}</strong></span>
+                                </div>
+                            </div>
+                            <div class="list-card-status">
+                                @if(($item->bodega_stock + $item->oficina_stock) === 0)
+                                    <span class="pill red">Agotado</span>
+                                @elseif(($item->bodega_stock + $item->oficina_stock) <= 1)
+                                    <span class="pill amber">Crítico</span>
+                                @else
+                                    <span class="pill orange">Bajo</span>
+                                @endif
+                            </div>
                         </div>
                     @empty
-                        <div class="empty">No hay insumos en nivel de alerta.</div>
+                        <div class="movement-empty">
+                            <i class="fa-solid fa-check-circle"></i>
+                            <span>Todo en orden — sin alertas</span>
+                        </div>
                     @endforelse
                 </div>
             </article>

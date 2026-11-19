@@ -37,9 +37,9 @@ El proyecto esta preparado para usar MySQL con estos valores en `.env`:
 
 Se agrego una carpeta lista para despliegue en cPanel:
 
-- [deploy/cpanel/README.md](/Users/innovacion/Documents/New%20project/inventario_innovacion/deploy/cpanel/README.md)
-- [deploy/cpanel/public_html/index.php](/Users/innovacion/Documents/New%20project/inventario_innovacion/deploy/cpanel/public_html/index.php)
-- [deploy/cpanel/public_html/.htaccess](/Users/innovacion/Documents/New%20project/inventario_innovacion/deploy/cpanel/public_html/.htaccess)
+- [deploy/cpanel/README.md](deploy/cpanel/README.md)
+- [deploy/cpanel/public_html/index.php](deploy/cpanel/public_html/index.php)
+- [deploy/cpanel/public_html/.htaccess](deploy/cpanel/public_html/.htaccess)
 
 Eso te cubre dos escenarios:
 

@@ -30,82 +30,11 @@
             <span class="pill dark">{{ $movements->total() }} registros</span>
         </div>
 
-        <form action="{{ route('inventory.movements.index') }}" method="GET" class="filters-panel">
-            <div class="filters-grid single-row">
-                <div>
-                    <label for="item_filter">Insumo</label>
-                    <div class="search-select" data-search-select>
-                        <input id="item_filter" type="text" value="{{ $selectedFilterItemLabel }}"
-                            placeholder="Todos los insumos" autocomplete="off" data-search-input>
-                        <input type="hidden" name="item_id" value="{{ $filters['item_id'] ?? '' }}" data-search-value>
-                        <div class="search-select-menu" hidden data-search-menu>
-                            <button type="button" class="search-select-option" data-search-option data-value=""
-                                data-label="">Todos los insumos</button>
-                            @foreach ($items as $item)
-                                <button type="button" class="search-select-option" data-search-option
-                                    data-value="{{ $item->id }}"
-                                    data-label="{{ $item->name }} - {{ $item->brand }} {{ $item->model }}">
-                                    {{ $item->name }} - {{ $item->brand }} {{ $item->model }}
-                                </button>
-                            @endforeach
-                            <div class="search-select-empty" hidden data-search-empty>No se encontraron insumos.</div>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <label for="type_filter">Tipo</label>
-                    <div class="search-select" data-search-select>
-                        <input id="type_filter" type="text" value="{{ $movementTypes[$filters['type']] ?? '' }}"
-                            placeholder="Todos los tipos" autocomplete="off" data-search-input>
-                        <input type="hidden" name="type" value="{{ $filters['type'] ?? '' }}" data-search-value>
-                        <div class="search-select-menu" hidden data-search-menu>
-                            <button type="button" class="search-select-option" data-search-option data-value=""
-                                data-label="">Todos los tipos</button>
-                            @foreach ($movementTypes as $value => $label)
-                                <button type="button" class="search-select-option" data-search-option
-                                    data-value="{{ $value }}" data-label="{{ $label }}">
-                                    {{ $label }}
-                                </button>
-                            @endforeach
-                            <div class="search-select-empty" hidden data-search-empty>No se encontraron tipos.</div>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <label for="location_filter">Ubicacion</label>
-                    <div class="search-select" data-search-select>
-                        <input id="location_filter" type="text" value="{{ $selectedFilterLocation?->name ?? '' }}"
-                            placeholder="Todas las ubicaciones" autocomplete="off" data-search-input>
-                        <input type="hidden" name="location_id" value="{{ $filters['location_id'] ?? '' }}"
-                            data-search-value>
-                        <div class="search-select-menu" hidden data-search-menu>
-                            <button type="button" class="search-select-option" data-search-option data-value=""
-                                data-label="">Todas las ubicaciones</button>
-                            @foreach ($locations as $location)
-                                <button type="button" class="search-select-option" data-search-option
-                                    data-value="{{ $location->id }}" data-label="{{ $location->name }}">
-                                    {{ $location->name }}
-                                </button>
-                            @endforeach
-                            <div class="search-select-empty" hidden data-search-empty>No se encontraron ubicaciones.</div>
-                        </div>
-                    </div>
-                </div>
-                <div>
-                    <label for="date_from">Desde</label>
-                    <input id="date_from" name="date_from" type="date" value="{{ $filters['date_from'] ?? '' }}">
-                </div>
-                <div>
-                    <label for="date_to">Hasta</label>
-                    <input id="date_to" name="date_to" type="date" value="{{ $filters['date_to'] ?? '' }}">
-                </div>
-                <div class="filters-actions">
-                    <button type="submit"><i class="fa-solid fa-filter"></i> Filtrar</button>
-                    <a href="{{ route('inventory.movements.index') }}" class="button-link dark"><i
-                            class="fa-solid fa-eraser"></i> Limpiar</a>
-                </div>
-            </div>
-        </form>
+        <div class="search-bar">
+            <i class="fa-solid fa-search"></i>
+            <input id="table_search" type="text" placeholder="Buscar en la tabla por fecha, insumo, tipo, origen, destino..." autocomplete="off">
+            <span id="search_count" class="search-count"></span>
+        </div>
 
         <div class="datatable-wrap">
             <table>
@@ -164,7 +93,7 @@
 
                 <form action="{{ route('inventory.movements.store') }}" method="POST">
                     @csrf
-                    <div>
+                    <div class="filter-inline-search">
                         <label for="item_search">Insumo</label>
                         @php
                             $selectedItem = $items->firstWhere('id', (int) old('item_id'));
@@ -172,23 +101,19 @@
                                 ? "{$selectedItem->name} - {$selectedItem->brand} {$selectedItem->model} (Bodega: {$selectedItem->bodega_stock}, Oficina: {$selectedItem->oficina_stock})"
                                 : '';
                         @endphp
-                        <div class="search-select" data-search-select>
-                            <input id="item_search" type="text" value="{{ $selectedItemLabel }}"
-                                placeholder="Buscar por nombre, marca o modelo" autocomplete="off" data-search-input>
-                            <input type="hidden" id="item_id" name="item_id" value="{{ old('item_id') }}"
-                                data-search-value>
-                            <div class="search-select-menu" hidden data-search-menu>
-                                @foreach ($items as $item)
-                                    <button type="button" class="search-select-option" data-search-option
-                                        data-value="{{ $item->id }}"
-                                        data-label="{{ $item->name }} - {{ $item->brand }} {{ $item->model }} (Bodega: {{ $item->bodega_stock }}, Oficina: {{ $item->oficina_stock }})">
-                                        {{ $item->name }} - {{ $item->brand }} {{ $item->model }} (Bodega:
-                                        {{ $item->bodega_stock }}, Oficina: {{ $item->oficina_stock }})
-                                    </button>
-                                @endforeach
-                                <div class="search-select-empty" hidden data-search-empty>No se encontraron insumos.</div>
-                            </div>
+                        <input id="item_search" type="text" value="{{ $selectedItemLabel }}"
+                            placeholder="Buscar por nombre, marca o modelo" autocomplete="off">
+                        <input type="hidden" id="item_id" name="item_id" value="{{ old('item_id') }}">
+                        <div class="inline-options" id="item_search_options">
+                            @foreach ($items as $item)
+                                <button type="button" class="inline-option" data-value="{{ $item->id }}"
+                                    data-label="{{ $item->name }} - {{ $item->brand }} {{ $item->model }} (Bodega: {{ $item->bodega_stock }}, Oficina: {{ $item->oficina_stock }})">
+                                    {{ $item->name }} - {{ $item->brand }} {{ $item->model }} (Bodega:
+                                    {{ $item->bodega_stock }}, Oficina: {{ $item->oficina_stock }})
+                                </button>
+                            @endforeach
                         </div>
+                        <div class="no-results" hidden id="item_search_no_results">No se encontraron insumos.</div>
                     </div>
                     <div class="field-grid">
                         <div>
@@ -273,68 +198,108 @@
             syncMovementFields();
         })();
 
+        // Búsqueda en tabla: filtrar filas conforme se escribe
         (() => {
-            const roots = Array.from(document.querySelectorAll('[data-search-select]'));
+            const input = document.getElementById('table_search');
+            const countLabel = document.getElementById('search_count');
+            if (!input) return;
 
-            if (roots.length === 0) {
-                return;
+            const tbody = document.querySelector('.datatable-wrap tbody');
+            if (!tbody) return;
+
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const noRow = tbody.querySelector('tr td[colspan]');
+
+            let debounceTimer = null;
+
+            input.addEventListener('input', () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(filterRows, 100);
+            });
+
+            function filterRows() {
+                const term = input.value.trim().toLowerCase();
+                let visibleCount = 0;
+
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    const visible = term === '' || text.includes(term);
+                    row.style.display = visible ? '' : 'none';
+                    if (visible) visibleCount++;
+                });
+
+                // Mostrar/ocultar fila de "no hay resultados"
+                if (noRow) {
+                    noRow.style.display = term === '' && visibleCount === 0 ? '' : (term === '' ? 'none' : (visibleCount === 0 ? '' : 'none'));
+                }
+
+                // Contador de resultados
+                if (term !== '') {
+                    countLabel.textContent = visibleCount + ' de ' + rows.length + ' registros';
+                } else {
+                    countLabel.textContent = '';
+                }
             }
+        })();
 
-            roots.forEach((root) => {
-                const input = root.querySelector('[data-search-input]');
-                const valueField = root.querySelector('[data-search-value]');
-                const menu = root.querySelector('[data-search-menu]');
-                const empty = root.querySelector('[data-search-empty]');
-                const options = Array.from(root.querySelectorAll('[data-search-option]'));
+        // Búsqueda inline en modal de nuevo movimiento
+        (() => {
+            const input = document.getElementById('item_search');
+            const optionsContainer = document.getElementById('item_search_options');
+            const valueField = document.getElementById('item_id');
+            const noResults = document.getElementById('item_search_no_results');
 
-                const openMenu = () => {
-                    menu.hidden = false;
-                };
+            if (!input || !optionsContainer) return;
 
-                const closeMenu = () => {
-                    menu.hidden = true;
-                };
+            const options = Array.from(optionsContainer.querySelectorAll('.inline-option'));
+            let debounceTimer = null;
 
-                const filterOptions = () => {
-                    const term = input.value.trim().toLowerCase();
-                    let visibleCount = 0;
+            const filterOptions = () => {
+                const term = input.value.trim().toLowerCase();
+                let visibleCount = 0;
 
-                    options.forEach((option) => {
-                        const label = option.dataset.label.toLowerCase();
-                        const visible = term === '' || label.includes(term);
-                        option.hidden = !visible;
-                        if (visible) {
-                            visibleCount += 1;
-                        }
-                    });
-
-                    empty.hidden = visibleCount !== 0;
-                };
-
-                input.addEventListener('focus', () => {
-                    openMenu();
-                    filterOptions();
+                options.forEach(option => {
+                    const label = (option.dataset.label || '').toLowerCase();
+                    const visible = term === '' || label.includes(term);
+                    option.style.display = visible ? '' : 'none';
+                    if (visible) visibleCount++;
                 });
 
-                input.addEventListener('input', () => {
-                    valueField.value = '';
-                    openMenu();
-                    filterOptions();
-                });
+                if (noResults) {
+                    noResults.hidden = visibleCount !== 0;
+                }
+                optionsContainer.style.display = visibleCount === 0 && term !== '' ? 'none' : '';
+            };
 
-                options.forEach((option) => {
-                    option.addEventListener('click', () => {
-                        input.value = option.dataset.label;
-                        valueField.value = option.dataset.value;
-                        closeMenu();
-                    });
-                });
+            const debouncedFilter = () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(filterOptions, 150);
+            };
 
-                document.addEventListener('click', (event) => {
-                    if (!root.contains(event.target)) {
-                        closeMenu();
-                    }
+            input.addEventListener('input', () => {
+                if (valueField) valueField.value = '';
+                debouncedFilter();
+            });
+
+            options.forEach(option => {
+                option.addEventListener('click', () => {
+                    input.value = option.dataset.label || '';
+                    if (valueField) valueField.value = option.dataset.value || '';
+                    optionsContainer.style.display = 'none';
+                    if (noResults) noResults.style.display = 'none';
                 });
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!input.contains(event.target) && !optionsContainer.contains(event.target)) {
+                    optionsContainer.style.display = 'none';
+                    if (noResults) noResults.style.display = 'none';
+                }
+            });
+
+            input.addEventListener('focus', () => {
+                optionsContainer.style.display = '';
+                filterOptions();
             });
         })();
     </script>
