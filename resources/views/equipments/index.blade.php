@@ -29,14 +29,14 @@
             <span class="pill dark">{{ $equipments->total() }} registros</span>
         </div>
 
-        <form action="{{ route('equipments.index') }}" method="GET" class="filters-grid single-row" style="margin-bottom: 18px;">
+        <div class="filters-grid single-row" style="margin-bottom: 18px;">
             <div>
                 <label for="equipment_search">Buscar</label>
-                <input id="equipment_search" name="search" type="text" value="{{ $filters['search'] }}" placeholder="Categoria, marca, modelo, serie o activo">
+                <input id="equipment_search" name="search" type="text" value="{{ $filters['search'] }}" placeholder="Categoria, marca, modelo, serie o activo" data-live-filter-input>
             </div>
             <div>
                 <label for="equipment_category_filter">Categoria</label>
-                <select id="equipment_category_filter" name="category">
+                <select id="equipment_category_filter" name="category" data-live-filter-select>
                     <option value="">Todas</option>
                     @foreach ($categories as $value => $label)
                         <option value="{{ $value }}" @selected($filters['category'] === $value)>{{ $label }}</option>
@@ -45,18 +45,14 @@
             </div>
             <div>
                 <label for="equipment_status_filter">Estado</label>
-                <select id="equipment_status_filter" name="status">
+                <select id="equipment_status_filter" name="status" data-live-filter-select>
                     <option value="">Todos</option>
                     @foreach ($statuses as $value => $label)
                         <option value="{{ $value }}" @selected($filters['status'] === $value)>{{ $label }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="filters-actions">
-                <button type="submit"><i class="fa-solid fa-filter"></i> Filtrar</button>
-                <a href="{{ route('equipments.index') }}" class="button-link dark"><i class="fa-solid fa-eraser"></i> Limpiar</a>
-            </div>
-        </form>
+        </div>
 
         <div class="datatable-wrap">
             <table>
@@ -74,7 +70,7 @@
                 </thead>
                 <tbody>
                     @forelse ($equipments as $equipment)
-                        <tr>
+                        <tr data-filter-row data-filter-category="{{ $equipment->category }}" data-filter-status="{{ $equipment->status }}">
                             <td class="strong">
                                 {{ $categories[$equipment->category] ?? $equipment->category }} {{ $equipment->brand }} {{ $equipment->model }}<br>
                                 <span class="muted">{{ $equipment->name }}</span>
@@ -160,6 +156,54 @@
     @endif
 
     <script>
+        // Filtrado en tiempo real de la tabla de equipos
+        (() => {
+            const input = document.querySelector('[data-live-filter-input]');
+            const selects = Array.from(document.querySelectorAll('[data-live-filter-select]'));
+            const rows = Array.from(document.querySelectorAll('[data-filter-row]'));
+
+            if (!input || rows.length === 0) {
+                return;
+            }
+
+            const normalize = (value) => value.toLowerCase().trim();
+
+            const applyFilter = () => {
+                const term = normalize(input.value);
+
+                rows.forEach((row) => {
+                    const text = normalize(row.textContent || '');
+                    const matchesText = term === '' || text.includes(term);
+
+                    let matchesSelects = true;
+                    selects.forEach((select) => {
+                        const selectedValue = select.value;
+                        if (selectedValue === '') return;
+
+                        let rowValue = '';
+                        if (select.id.includes('category')) {
+                            rowValue = normalize(row.getAttribute('data-filter-category') || '');
+                        } else if (select.id.includes('status')) {
+                            rowValue = normalize(row.getAttribute('data-filter-status') || '');
+                        }
+
+                        if (rowValue !== normalize(selectedValue)) {
+                            matchesSelects = false;
+                        }
+                    });
+
+                    row.hidden = !(matchesText && matchesSelects);
+                });
+            };
+
+            input.addEventListener('input', applyFilter);
+            selects.forEach((select) => {
+                select.addEventListener('change', applyFilter);
+            });
+            applyFilter();
+        })();
+
+        // Mostrar/ocultar campos de hardware según categoría
         (() => {
             const forms = Array.from(document.querySelectorAll('form[action$="/equipos"], form[action*="/equipos/"]'));
 

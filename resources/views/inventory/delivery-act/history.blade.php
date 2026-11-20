@@ -22,31 +22,27 @@
             <span class="pill dark">{{ $records->total() }} registros</span>
         </div>
 
-        <form action="{{ route('inventory.delivery-act.history') }}" method="GET" class="filters-panel">
-            <div class="filters-grid" style="grid-template-columns: minmax(0, 1.5fr) minmax(220px, 0.8fr) auto;">
+        <div class="filters-panel" style="margin-bottom: 18px;">
+            <div class="filters-grid" style="grid-template-columns: minmax(0, 1.5fr) minmax(220px, 0.8fr);">
                 <div>
                     <label for="history_search">Buscar</label>
-                    <input id="history_search" name="search" type="text" value="{{ $filters['search'] ?? '' }}" placeholder="Distrito, area, responsable o recibe">
+                    <input id="history_search" name="search" type="text" value="{{ $filters['search'] ?? '' }}" placeholder="Distrito, area, responsable o recibe" data-live-filter-input>
                 </div>
                 <div>
                     <label for="history_type">Tipo</label>
-                    <select id="history_type" name="type">
+                    <select id="history_type" name="type" data-live-filter-select>
                         <option value="">Todas</option>
                         @foreach ($recordTypes as $value => $label)
                             <option value="{{ $value }}" @selected(($filters['type'] ?? '') === $value)>{{ $label }}</option>
                         @endforeach
                     </select>
                 </div>
-                <div class="filters-actions">
-                    <button type="submit"><i class="fa-solid fa-filter"></i> Filtrar</button>
-                    <a href="{{ route('inventory.delivery-act.history') }}" class="button-link dark"><i class="fa-solid fa-eraser"></i> Limpiar</a>
-                </div>
             </div>
-        </form>
+        </div>
 
         <div class="list">
             @forelse ($records as $record)
-                <article class="list-card">
+                <article class="list-card" data-filter-row data-filter-type="{{ $record->type }}">
                     <div class="section-head" style="margin-bottom: 12px;">
                         <div>
                             <h2 style="font-size: 22px;">{{ $recordTypes[$record->type] ?? $record->type }}</h2>
@@ -158,4 +154,37 @@
 
         @include('inventory.partials.pagination', ['paginator' => $records])
     </section>
+
+    <script>
+        (() => {
+            const input = document.querySelector('[data-live-filter-input]');
+            const select = document.querySelector('[data-live-filter-select]');
+            const cards = Array.from(document.querySelectorAll('[data-filter-row]'));
+
+            if (!input || cards.length === 0) {
+                return;
+            }
+
+            const normalize = (value) => value.toLowerCase().trim();
+
+            const applyFilter = () => {
+                const term = normalize(input.value);
+                const typeFilter = select ? select.value : '';
+
+                cards.forEach((card) => {
+                    const text = normalize(card.textContent || '');
+                    const cardType = normalize(card.getAttribute('data-filter-type') || '');
+                    const matchesText = term === '' || text.includes(term);
+                    const matchesType = typeFilter === '' || cardType === typeFilter;
+                    card.hidden = !(matchesText && matchesType);
+                });
+            };
+
+            input.addEventListener('input', applyFilter);
+            if (select) {
+                select.addEventListener('change', applyFilter);
+            }
+            applyFilter();
+        })();
+    </script>
 @endsection
