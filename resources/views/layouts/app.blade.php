@@ -9,6 +9,7 @@
     <link rel="shortcut icon" type="image/png" href="{{ asset('logoA.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('logoA.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
@@ -369,15 +370,50 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 14px;
-            border-radius: 999px;
-            background: linear-gradient(135deg, rgba(11, 93, 86, 0.10) 0%, rgba(11, 93, 86, 0.06) 100%);
-            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #0f766e 0%, #0d9488 50%, #14b8a6 100%);
+            color: #fff;
             font-size: 11px;
             font-weight: 700;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
-            border: 1px solid rgba(11, 93, 86, 0.12);
+            border: none;
+            box-shadow: 0 2px 8px rgba(15, 118, 110, 0.25), 0 1px 2px rgba(15, 118, 110, 0.15);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .hero-note::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .hero-note:hover::before {
+            left: 100%;
+        }
+
+        .hero-note::after {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+            animation: heroPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes heroPulse {
+            0%, 100% { opacity: 0.6; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.1); }
         }
 
         .page-header {
@@ -1915,6 +1951,46 @@
             window.addEventListener('pageshow', (event) => {
                 if (event.persisted) {
                     window.location.reload();
+                }
+            });
+        })();
+
+        // Confirmación de eliminación con SweetAlert2
+        (() => {
+            window.confirmDelete = (message) => {
+                return Swal.fire({
+                    title: '¿Estás seguro?',
+                    text: message || 'Esta acción no se puede deshacer.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#0f766e',
+                    cancelButtonColor: '#94a3b8',
+                    confirmButtonText: 'Sí, eliminar',
+                    cancelButtonText: 'Cancelar',
+                    reverseButtons: true,
+                    customClass: {
+                        popup: 'swal2-popup-custom',
+                        title: 'swal2-title-custom',
+                        confirmButton: 'swal2-confirm-custom',
+                        cancelButton: 'swal2-cancel-custom'
+                    }
+                }).then((result) => {
+                    return result.isConfirmed;
+                });
+            };
+        })();
+
+        // Interceptar formularios con data-confirm-delete
+        (() => {
+            document.addEventListener('submit', async (event) => {
+                const form = event.target;
+                const confirmMsg = form.getAttribute('data-confirm-delete');
+                if (!confirmMsg) return;
+
+                event.preventDefault();
+                const confirmed = await window.confirmDelete(confirmMsg);
+                if (confirmed) {
+                    form.submit();
                 }
             });
         })();

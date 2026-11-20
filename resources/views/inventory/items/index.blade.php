@@ -25,18 +25,12 @@
             <span class="pill dark">{{ $items->total() }} registros</span>
         </div>
 
-        <form action="{{ route('inventory.items.index') }}" method="GET" class="filters-bar compact" style="margin-bottom: 18px;">
+        <div class="filters-bar compact" style="margin-bottom: 18px;">
             <div>
                 <label for="search">Buscar</label>
                 <input id="search" name="search" type="text" value="{{ $filters['search'] ?? '' }}" placeholder="Nombre, marca o modelo" data-live-filter-input>
             </div>
-            <div class="filters-actions">
-                <button type="submit"><i class="fa-solid fa-filter"></i> Filtrar</button>
-            </div>
-            <div class="filters-actions">
-                <a href="{{ route('inventory.items.index') }}" class="button-link dark"><i class="fa-solid fa-eraser"></i> Limpiar</a>
-            </div>
-        </form>
+        </div>
         <div class="datatable-wrap">
             <div class="table-responsive">
             <table>
@@ -79,7 +73,7 @@
                                             </button>
                                         @endif
                                         @if ($currentUser->canDeleteIn(\App\Models\User::PERMISSION_ITEMS))
-                                            <form action="{{ route('inventory.items.destroy', $item) }}" method="POST" onsubmit="return confirm('Se eliminara este insumo. Deseas continuar?');" style="display:inline;">
+                                            <form action="{{ route('inventory.items.destroy', $item) }}" method="POST" data-confirm-delete="Se eliminará este insumo. Deseas continuar?" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="button-link" style="background:#fff5f5; color:#b42318; border:1px solid rgba(180,35,24,.18);">

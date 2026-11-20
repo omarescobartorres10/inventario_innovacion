@@ -98,7 +98,7 @@
                                             <a href="{{ route('equipments.index', ['edit' => $equipment->id]) }}" class="button-link dark"><i class="fa-solid fa-pen"></i> Editar</a>
                                         @endif
                                         @if ($currentUser->canDeleteIn(\App\Models\User::PERMISSION_EQUIPMENTS))
-                                            <form action="{{ route('equipments.destroy', $equipment) }}" method="POST" onsubmit="return confirm('Se eliminara este equipo. Continuar?');">
+                                            <form action="{{ route('equipments.destroy', $equipment) }}" method="POST" data-confirm-delete="Se eliminará este equipo. Continuar?">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"><i class="fa-solid fa-trash"></i> Eliminar</button>

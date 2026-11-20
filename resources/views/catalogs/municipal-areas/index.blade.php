@@ -28,18 +28,12 @@
             <span class="pill dark">{{ $areas->total() }} registros</span>
         </div>
 
-        <form action="{{ route('catalogs.municipal-areas.index') }}" method="GET" class="filters-bar compact" style="margin-bottom: 18px;">
+        <div class="filters-bar compact" style="margin-bottom: 18px;">
             <div>
                 <label for="area_search">Buscar</label>
-                <input id="area_search" name="search" type="text" value="{{ $filters['search'] ?? '' }}" placeholder="Area, responsable, correo o slug">
+                <input id="area_search" name="search" type="text" value="{{ $filters['search'] ?? '' }}" placeholder="Area, responsable, correo o slug" data-live-filter-input>
             </div>
-            <div class="filters-actions">
-                <button type="submit"><i class="fa-solid fa-filter"></i> Filtrar</button>
-            </div>
-            <div class="filters-actions">
-                <a href="{{ route('catalogs.municipal-areas.index') }}" class="button-link dark"><i class="fa-solid fa-eraser"></i> Limpiar</a>
-            </div>
-        </form>
+        </div>
 
         <div class="datatable-wrap">
             <table>
@@ -56,7 +50,7 @@
                 </thead>
                 <tbody>
                     @forelse ($areas as $area)
-                        <tr>
+                        <tr data-filter-row>
                             <td class="strong">{{ $area->name }}</td>
                             <td>{{ $area->responsible_name ?: '-' }}</td>
                             <td>{{ $area->institutional_email ?: '-' }}</td>
@@ -68,7 +62,7 @@
                                             <a href="{{ route('catalogs.municipal-areas.index', ['edit' => $area->id]) }}" class="button-link dark"><i class="fa-solid fa-pen"></i> Editar</a>
                                         @endif
                                         @if ($currentUser->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS))
-                                            <form action="{{ route('catalogs.municipal-areas.destroy', $area) }}" method="POST" onsubmit="return confirm('Se eliminara esta area. Continuar?');">
+                                            <form action="{{ route('catalogs.municipal-areas.destroy', $area) }}" method="POST" data-confirm-delete="Se eliminará esta área. Continuar?">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"><i class="fa-solid fa-trash"></i> Eliminar</button>
@@ -128,4 +122,40 @@
             </div>
         </div>
     @endif
+
+    <script>
+        (() => {
+            const input = document.querySelector('[data-live-filter-input]');
+            const rows = Array.from(document.querySelectorAll('[data-filter-row]'));
+            const emptyRow = document.querySelector('[data-empty-row]');
+
+            if (!input || rows.length === 0) {
+                return;
+            }
+
+            const normalize = (value) => value.toLowerCase().trim();
+
+            const applyFilter = () => {
+                const term = normalize(input.value);
+                let visibleRows = 0;
+
+                rows.forEach((row) => {
+                    const text = normalize(row.textContent || '');
+                    const matches = term === '' || text.includes(term);
+                    row.hidden = !matches;
+
+                    if (matches) {
+                        visibleRows += 1;
+                    }
+                });
+
+                if (emptyRow) {
+                    emptyRow.hidden = visibleRows !== 0;
+                }
+            };
+
+            input.addEventListener('input', applyFilter);
+            applyFilter();
+        })();
+    </script>
 @endsection

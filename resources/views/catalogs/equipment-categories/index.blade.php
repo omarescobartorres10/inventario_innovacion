@@ -28,18 +28,12 @@
             <span class="pill dark">{{ $categories->total() }} registros</span>
         </div>
 
-        <form action="{{ route('catalogs.equipment-categories.index') }}" method="GET" class="filters-bar compact" style="margin-bottom: 18px;">
+        <div class="filters-bar compact" style="margin-bottom: 18px;">
             <div>
                 <label for="category_search">Buscar</label>
-                <input id="category_search" name="search" type="text" value="{{ $filters['search'] ?? '' }}" placeholder="Nombre o slug">
+                <input id="category_search" name="search" type="text" value="{{ $filters['search'] ?? '' }}" placeholder="Nombre o slug" data-live-filter-input>
             </div>
-            <div class="filters-actions">
-                <button type="submit"><i class="fa-solid fa-filter"></i> Filtrar</button>
-            </div>
-            <div class="filters-actions">
-                <a href="{{ route('catalogs.equipment-categories.index') }}" class="button-link dark"><i class="fa-solid fa-eraser"></i> Limpiar</a>
-            </div>
-        </form>
+        </div>
 
         <div class="datatable-wrap">
             <table>
@@ -55,7 +49,7 @@
                 </thead>
                 <tbody>
                     @forelse ($categories as $category)
-                        <tr>
+                        <tr data-filter-row>
                             <td class="strong">{{ $category->name }}</td>
                             <td>{{ $category->slug }}</td>
                             <td><span class="pill {{ $category->is_active ? 'green' : 'rose' }}">{{ $category->is_active ? 'Activa' : 'Inactiva' }}</span></td>
@@ -66,7 +60,7 @@
                                             <a href="{{ route('catalogs.equipment-categories.index', ['edit' => $category->id]) }}" class="button-link dark"><i class="fa-solid fa-pen"></i> Editar</a>
                                         @endif
                                         @if ($currentUser->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS))
-                                            <form action="{{ route('catalogs.equipment-categories.destroy', $category) }}" method="POST" onsubmit="return confirm('Se eliminara esta categoria. Continuar?');">
+                                            <form action="{{ route('catalogs.equipment-categories.destroy', $category) }}" method="POST" data-confirm-delete="Se eliminará esta categoría. Continuar?">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"><i class="fa-solid fa-trash"></i> Eliminar</button>
@@ -126,4 +120,40 @@
             </div>
         </div>
     @endif
+
+    <script>
+        (() => {
+            const input = document.querySelector('[data-live-filter-input]');
+            const rows = Array.from(document.querySelectorAll('[data-filter-row]'));
+            const emptyRow = document.querySelector('[data-empty-row]');
+
+            if (!input || rows.length === 0) {
+                return;
+            }
+
+            const normalize = (value) => value.toLowerCase().trim();
+
+            const applyFilter = () => {
+                const term = normalize(input.value);
+                let visibleRows = 0;
+
+                rows.forEach((row) => {
+                    const text = normalize(row.textContent || '');
+                    const matches = term === '' || text.includes(term);
+                    row.hidden = !matches;
+
+                    if (matches) {
+                        visibleRows += 1;
+                    }
+                });
+
+                if (emptyRow) {
+                    emptyRow.hidden = visibleRows !== 0;
+                }
+            };
+
+            input.addEventListener('input', applyFilter);
+            applyFilter();
+        })();
+    </script>
 @endsection

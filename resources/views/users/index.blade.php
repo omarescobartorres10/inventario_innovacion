@@ -71,7 +71,7 @@
                                             <a href="{{ route('users.index', ['edit' => $user->id]) }}" class="button-link dark"><i class="fa-solid fa-pen"></i> Editar</a>
                                         @endif
                                         @if ($currentUser->canDeleteIn(\App\Models\User::PERMISSION_USERS) && auth()->id() !== $user->id)
-                                            <form action="{{ route('users.destroy', $user) }}" method="POST" onsubmit="return confirm('Se eliminara este usuario. Continuar?');">
+                                            <form action="{{ route('users.destroy', $user) }}" method="POST" data-confirm-delete="Se eliminará este usuario. Continuar?">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"><i class="fa-solid fa-trash"></i> Eliminar</button>

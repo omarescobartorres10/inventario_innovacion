@@ -118,7 +118,7 @@
                                 <i class="fa-solid fa-pen-to-square"></i> Corregir acta
                             </a>
                             @if ($record->type === \App\Models\DeliveryRecord::TYPE_SUPPLIES)
-                                <form action="{{ route('inventory.delivery-act.annul', $record) }}" method="POST" onsubmit="return confirm('Anular esta acta devolverá el stock al origen. ¿Continuar?');">
+                                <form action="{{ route('inventory.delivery-act.annul', $record) }}" method="POST" data-confirm-delete="Anular esta acta devolverá el stock al origen. ¿Continuar?">
                                     @csrf
                                     <button type="submit" class="button-link" style="border:0; background:#fff2f2; color:#a11f1f;">
                                         <i class="fa-solid fa-ban"></i> Anular acta
