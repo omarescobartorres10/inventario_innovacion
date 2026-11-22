@@ -75,6 +75,15 @@ class UserController extends Controller
 
     public function update(Request $request, User $user): RedirectResponse
     {
+        $authUser = Auth::user();
+
+        // 🛡️ PROTECCIÓN: Solo un admin puede modificar a otro admin
+        if ($user->isAdmin() && ! $authUser->isAdmin()) {
+            return back()->withErrors([
+                'role' => 'No tienes permisos para modificar a un administrador.',
+            ])->withInput();
+        }
+
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'username' => $this->usernameRules($user),
@@ -97,7 +106,7 @@ class UserController extends Controller
 
 
         // 🛡️ PROTECCIÓN: Evitar que el admin se desactive o se quite el rol a sí mismo
-                if (Auth::id() === $user->id) {
+        if (Auth::id() === $user->id) {
             // Si está intentando desactivarse
             if (!($validated['is_active'] ?? false)) {
                 return back()->withErrors([
@@ -113,8 +122,17 @@ class UserController extends Controller
             }
         }
 
-        
+        // 🛡️ PROTECCIÓN: No dejar el sistema sin admins
+        if ($user->isAdmin() && $validated['role'] !== User::ROLE_ADMIN) {
+            $adminCount = User::query()->where('role', User::ROLE_ADMIN)->count();
+            if ($adminCount <= 1) {
+                return back()->withErrors([
+                    'role' => 'No se puede quitar el rol de administrador. Debe haber al menos un admin en el sistema.',
+                ])->withInput();
+            }
+        }
 
+        
         $permissions = $validated['role'] === User::ROLE_ADMIN
             ? User::defaultModulePermissions()
             : User::normalizePermissions($validated['permissions'] ?? []);
@@ -144,7 +162,26 @@ class UserController extends Controller
 
     public function destroy(User $user): RedirectResponse
     {
-                if (Auth::id() === $user->id) {
+        $authUser = Auth::user();
+
+        // 🛡️ PROTECCIÓN: Solo un admin puede eliminar a otro admin
+        if ($user->isAdmin() && ! $authUser->isAdmin()) {
+            return redirect()
+                ->route('users.index')
+                ->withErrors(['user' => 'No tienes permisos para eliminar a un administrador.']);
+        }
+
+        // 🛡️ PROTECCIÓN: No eliminar al último admin
+        if ($user->isAdmin()) {
+            $adminCount = User::query()->where('role', User::ROLE_ADMIN)->count();
+            if ($adminCount <= 1) {
+                return redirect()
+                    ->route('users.index')
+                    ->withErrors(['user' => 'No se puede eliminar al último administrador del sistema.']);
+            }
+        }
+
+        if (Auth::id() === $user->id) {
             return redirect()
                 ->route('users.index')
                 ->withErrors(['user' => 'No puedes eliminar tu propio usuario mientras estas autenticado.']);
