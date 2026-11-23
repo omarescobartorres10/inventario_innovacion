@@ -1,14 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
-    @php($currentUser = auth()->user())
+    @php
+        $currentUser = auth()->user();
+        $categoryFormFields = ['name', 'slug', 'is_active'];
+        $hasCategoryFormErrors = $errors->hasAny($categoryFormFields);
+    @endphp
     <header class="page-header">
         <div>
             <h1>Catalogo</h1>
             <p>Administra las categorias que alimentan el modulo de equipos y sus asignaciones.</p>
         </div>
         <div class="toolbar">
-            @if ($currentUser->canCreateIn(\App\Models\User::PERMISSION_CATALOGS))
+            @if ($currentUser?->canCreateIn(\App\Models\User::PERMISSION_CATALOGS))
                 <button type="button" class="button-link dark" data-open-modal="category-create-modal"><i class="fa-solid fa-plus"></i> Nueva categoria</button>
             @endif
         </div>
@@ -42,7 +46,7 @@
                         <th>Nombre</th>
                         <th>Slug</th>
                         <th>Estado</th>
-                        @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_CATALOGS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS))
+                        @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_CATALOGS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS))
                             <th>Acciones</th>
                         @endif
                     </tr>
@@ -53,13 +57,13 @@
                             <td class="strong">{{ $category->name }}</td>
                             <td>{{ $category->slug }}</td>
                             <td><span class="pill {{ $category->is_active ? 'green' : 'rose' }}">{{ $category->is_active ? 'Activa' : 'Inactiva' }}</span></td>
-                            @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_CATALOGS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS))
+                            @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_CATALOGS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS))
                                 <td>
                                     <div class="toolbar">
-                                        @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_CATALOGS))
+                                        @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_CATALOGS))
                                             <a href="{{ route('catalogs.equipment-categories.index', ['edit' => $category->id]) }}" class="button-link dark"><i class="fa-solid fa-pen"></i> Editar</a>
                                         @endif
-                                        @if ($currentUser->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS))
+                                        @if ($currentUser?->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS))
                                             <form action="{{ route('catalogs.equipment-categories.destroy', $category) }}" method="POST" data-confirm-delete="Se eliminará esta categoría. Continuar?">
                                                 @csrf
                                                 @method('DELETE')
@@ -72,7 +76,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ ($currentUser->canEditIn(\App\Models\User::PERMISSION_CATALOGS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS)) ? 4 : 3 }}">No hay categorias registradas.</td>
+                            <td colspan="{{ ($currentUser?->canEditIn(\App\Models\User::PERMISSION_CATALOGS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS)) ? 4 : 3 }}">No hay categorias registradas.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -82,8 +86,8 @@
         @include('inventory.partials.pagination', ['paginator' => $categories])
     </section>
 
-    @if ($currentUser->canCreateIn(\App\Models\User::PERMISSION_CATALOGS))
-        <div id="category-create-modal" class="modal {{ $errors->any() && !request('edit') ? 'is-visible' : '' }}">
+    @if ($currentUser?->canCreateIn(\App\Models\User::PERMISSION_CATALOGS))
+        <div id="category-create-modal" class="modal {{ $hasCategoryFormErrors && !request('edit') ? 'is-visible' : '' }}">
             <div class="modal-card">
                 <div class="modal-head">
                     <div>
@@ -101,7 +105,7 @@
         </div>
     @endif
 
-    @if ($editingCategory && $currentUser->canEditIn(\App\Models\User::PERMISSION_CATALOGS))
+    @if ($editingCategory && $currentUser?->canEditIn(\App\Models\User::PERMISSION_CATALOGS))
         <div id="category-edit-modal" class="modal is-visible">
             <div class="modal-card">
                 <div class="modal-head">

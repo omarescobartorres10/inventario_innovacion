@@ -1,14 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
-    @php($currentUser = auth()->user())
+    @php
+        $currentUser = auth()->user();
+        $equipmentMovementFormFields = ['equipment_id', 'type', 'performed_by', 'from_area_id', 'to_location_id', 'to_area_id', 'performed_at', 'notes'];
+        $hasEquipmentMovementFormErrors = $errors->hasAny($equipmentMovementFormFields);
+    @endphp
     <header class="page-header">
         <div>
             <h1>Movimientos de equipos</h1>
             <p>Registra retiros, traslados y bajas de equipos, dejando trazabilidad del tecnico que ejecuta la operacion.</p>
         </div>
         <div class="toolbar">
-            @if ($currentUser->canCreateIn(\App\Models\User::PERMISSION_EQUIPMENTS))
+            @if ($currentUser?->canCreateIn(\App\Models\User::PERMISSION_EQUIPMENTS))
                 <button type="button" class="button-link dark" data-open-modal="equipment-movement-modal"><i class="fa-solid fa-right-left"></i> Nuevo movimiento</button>
             @endif
             <a href="{{ route('equipments.movements.pdf', request()->query()) }}" class="button-link green"><i class="fa-solid fa-file-pdf"></i> Reporte PDF</a>
@@ -102,8 +106,8 @@
         @include('inventory.partials.pagination', ['paginator' => $movements])
     </section>
 
-    @if ($currentUser->canCreateIn(\App\Models\User::PERMISSION_EQUIPMENTS))
-        <div id="equipment-movement-modal" class="modal {{ $errors->any() ? 'is-visible' : '' }}">
+    @if ($currentUser?->canCreateIn(\App\Models\User::PERMISSION_EQUIPMENTS))
+        <div id="equipment-movement-modal" class="modal {{ $hasEquipmentMovementFormErrors ? 'is-visible' : '' }}">
             <div class="modal-card">
             <div class="modal-head">
                 <div>

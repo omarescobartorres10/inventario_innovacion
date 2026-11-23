@@ -1,14 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
-    @php($currentUser = auth()->user())
+    @php
+        $currentUser = auth()->user();
+        $areaFormFields = ['name', 'responsible_name', 'is_active'];
+        $hasAreaFormErrors = $errors->hasAny($areaFormFields);
+    @endphp
     <header class="page-header">
         <div>
             <h1>Catalogo</h1>
             <p>Administra las areas de la alcaldia, sus responsables y correos institucionales.</p>
         </div>
         <div class="toolbar">
-            @if ($currentUser->canCreateIn(\App\Models\User::PERMISSION_CATALOGS))
+            @if ($currentUser?->canCreateIn(\App\Models\User::PERMISSION_CATALOGS))
                 <button type="button" class="button-link dark" data-open-modal="area-create-modal"><i class="fa-solid fa-plus"></i> Nueva area</button>
             @endif
         </div>
@@ -43,7 +47,7 @@
                         <th>Responsable</th>
                         <th>Correo institucional</th>
                         <th>Estado</th>
-                        @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_CATALOGS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS))
+                        @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_CATALOGS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS))
                             <th>Acciones</th>
                         @endif
                     </tr>
@@ -55,13 +59,13 @@
                             <td>{{ $area->responsible_name ?: '-' }}</td>
                             <td>{{ $area->institutional_email ?: '-' }}</td>
                             <td><span class="pill {{ $area->is_active ? 'green' : 'rose' }}">{{ $area->is_active ? 'Activa' : 'Inactiva' }}</span></td>
-                            @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_CATALOGS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS))
+                            @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_CATALOGS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS))
                                 <td>
                                     <div class="toolbar">
-                                        @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_CATALOGS))
+                                        @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_CATALOGS))
                                             <a href="{{ route('catalogs.municipal-areas.index', ['edit' => $area->id]) }}" class="button-link dark"><i class="fa-solid fa-pen"></i> Editar</a>
                                         @endif
-                                        @if ($currentUser->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS))
+                                        @if ($currentUser?->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS))
                                             <form action="{{ route('catalogs.municipal-areas.destroy', $area) }}" method="POST" data-confirm-delete="Se eliminará esta área. Continuar?">
                                                 @csrf
                                                 @method('DELETE')
@@ -74,7 +78,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ ($currentUser->canEditIn(\App\Models\User::PERMISSION_CATALOGS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS)) ? 5 : 4 }}">No hay areas registradas.</td>
+                            <td colspan="{{ ($currentUser?->canEditIn(\App\Models\User::PERMISSION_CATALOGS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_CATALOGS)) ? 5 : 4 }}">No hay areas registradas.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -84,8 +88,8 @@
         @include('inventory.partials.pagination', ['paginator' => $areas])
     </section>
 
-    @if ($currentUser->canCreateIn(\App\Models\User::PERMISSION_CATALOGS))
-        <div id="area-create-modal" class="modal {{ $errors->any() && !request('edit') ? 'is-visible' : '' }}">
+    @if ($currentUser?->canCreateIn(\App\Models\User::PERMISSION_CATALOGS))
+        <div id="area-create-modal" class="modal {{ $hasAreaFormErrors && !request('edit') ? 'is-visible' : '' }}">
             <div class="modal-card">
                 <div class="modal-head">
                     <div>
@@ -103,7 +107,7 @@
         </div>
     @endif
 
-    @if ($editingArea && $currentUser->canEditIn(\App\Models\User::PERMISSION_CATALOGS))
+    @if ($editingArea && $currentUser?->canEditIn(\App\Models\User::PERMISSION_CATALOGS))
         <div id="area-edit-modal" class="modal is-visible">
             <div class="modal-card">
                 <div class="modal-head">

@@ -8,6 +8,10 @@
             : '';
         $selectedFilterLocation = $locations->firstWhere('id', (int) ($filters['location_id'] ?? 0));
     @endphp
+    @php
+        $movementFormFields = ['item_id', 'type', 'quantity', 'from_location_id', 'to_location_id', 'notes', 'performed_at'];
+        $hasMovementFormErrors = $errors->hasAny($movementFormFields);
+    @endphp
     <header class="page-header">
         <div>
             <h1>Movimientos</h1>
@@ -80,7 +84,7 @@
     </section>
 
     @if (auth()->user()?->canCreateIn(\App\Models\User::PERMISSION_MOVEMENTS))
-        <div id="movement-modal" class="modal {{ $errors->any() ? 'is-visible' : '' }}">
+        <div id="movement-modal" class="modal {{ $hasMovementFormErrors ? 'is-visible' : '' }}">
             <div class="modal-card">
                 <div class="modal-head">
                     <div>

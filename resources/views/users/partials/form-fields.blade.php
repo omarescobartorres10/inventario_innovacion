@@ -2,13 +2,20 @@
     $formKey = $user?->id ? 'user-'.$user->id : 'user-new';
 @endphp
 
-@if ($errors->any())
+@php
+    $allErrors = $errors->all();
+    $formErrors = array_filter($allErrors, function($error) {
+        return str_contains($error, 'permission_error') === false && str_contains($error, 'permisos') === false;
+    });
+@endphp
+
+@if (!empty($formErrors))
     <div class="message error" style="margin-bottom: 20px; padding: 12px 16px; display: flex; align-items: flex-start; gap: 10px; animation: fadeIn 0.3s ease;">
         <i class="fa-solid fa-triangle-exclamation" style="margin-top: 2px;"></i>
         <div>
             <strong style="display: block; margin-bottom: 4px;">Por favor, corrige los siguientes errores:</strong>
             <ul style="margin: 0; padding-left: 16px; font-size: 13px;">
-                @foreach ($errors->all() as $error)
+                @foreach ($formErrors as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
@@ -35,7 +42,8 @@
 <div class="field-grid">
     <div>
         <label for="user_phone_{{ $formKey }}">Telefono</label>
-        <input id="user_phone_{{ $formKey }}" name="phone" type="text" value="{{ old('phone', $user?->phone) }}">
+        <input id="user_phone_{{ $formKey }}" name="phone" type="text" value="{{ old('phone', $user?->phone) }}" maxlength="8" pattern="[0-9]{8}" title="Ingresa 8 digitos numericos">
+        <p class="subtle-note">Exactamente 8 digitos numericos.</p>
     </div>
     <div></div>
 </div>
@@ -107,7 +115,7 @@
     <div>
         <label for="user_password_{{ $formKey }}">Contraseña {{ $user ? '(dejar vacía para conservar)' : '' }}</label>
         <input id="user_password_{{ $formKey }}" name="password" type="password" {{ $user ? '' : 'required' }} class="@error('password') is-invalid @enderror">
-        
+        <p class="subtle-note">Mínimo 8 caracteres.</p>
     </div>
     <div>
         <label for="user_password_confirmation_{{ $formKey }}">Confirmar contraseña</label>

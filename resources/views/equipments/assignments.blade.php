@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-    @php($currentUser = auth()->user())
+    @php
+        $currentUser = auth()->user();
+    @endphp
     <header class="page-header">
         <div>
             <h1>Asignaciones</h1>
@@ -55,7 +57,7 @@
                         <th>Area</th>
                         <th>Fecha</th>
                         <th>Estado</th>
-                        @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS))
+                        @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS))
                             <th>Acciones</th>
                         @endif
                     </tr>
@@ -78,7 +80,7 @@
                             </td>
                             <td>{{ $equipment->assigned_at?->format('d/m/Y') ?: '-' }}</td>
                             <td><span class="pill {{ $equipment->status === 'available' ? 'green' : ($equipment->status === 'assigned' ? 'blue' : ($equipment->status === 'maintenance' ? 'amber' : 'rose')) }}">{{ $statuses[$equipment->status] ?? $equipment->status }}</span></td>
-                            @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS))
+                            @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS))
                                 <td>
                                     <a href="{{ route('equipments.assignments', ['edit' => $equipment->id]) }}" class="button-link dark"><i class="fa-solid fa-pen"></i> Gestionar</a>
                                 </td>
@@ -86,7 +88,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ $currentUser->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS) ? 8 : 7 }}">No hay equipos registrados.</td>
+                            <td colspan="{{ $currentUser?->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS) ? 8 : 7 }}">No hay equipos registrados.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -96,7 +98,7 @@
         @include('inventory.partials.pagination', ['paginator' => $equipments])
     </section>
 
-    @if ($editingEquipment && $currentUser->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS))
+    @if ($editingEquipment && $currentUser?->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS))
         <div id="equipment-assignment-modal" class="modal is-visible">
             <div class="modal-card">
                 <div class="modal-head">

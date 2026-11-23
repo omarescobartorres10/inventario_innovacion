@@ -32,7 +32,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'username' => $this->usernameRules(),
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['nullable', 'string', 'digits:8'],
             'position' => ['nullable', 'string', 'max:255'],
             'role' => ['required', Rule::in(array_keys(User::roleOptions()))],
             'permissions' => ['nullable', 'array'],
@@ -41,14 +41,18 @@ class UserController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ], [
             // 👇 MENSAJES PERSONALIZADOS 👇
+            'name.required' => 'El nombre es obligatorio.',
+            'username.required' => 'El nombre de usuario es obligatorio.',
+            'email.required' => 'El correo electrónico es obligatorio.',
+            'email.email' => 'Ingresa un correo electrónico válido.',
+            'email.unique' => 'Este correo ya está registrado en el sistema.',
+            'username.unique' => 'Este nombre de usuario ya está en uso.',
+            'phone.digits' => 'El teléfono debe tener exactamente 8 dígitos.',
+            'role.required' => 'El tipo de acceso es obligatorio.',
             'password.required' => 'La contraseña es obligatoria.',
             'password.min' => 'La contraseña debe tener al menos :min caracteres.',
             'password.confirmed' => 'La confirmación de la contraseña no coincide.',
-            'email.unique' => 'Este correo ya está registrado en el sistema.',
-            'username.unique' => 'Este nombre de usuario ya está en uso.',
         ] );
-
-        
 
         $permissions = $validated['role'] === User::ROLE_ADMIN
             ? User::defaultModulePermissions()
@@ -80,7 +84,7 @@ class UserController extends Controller
         // 🛡️ PROTECCIÓN: Solo un admin puede modificar a otro admin
         if ($user->isAdmin() && ! $authUser->isAdmin()) {
             return back()->withErrors([
-                'role' => 'No tienes permisos para modificar a un administrador.',
+                'permission_error' => 'No tienes permisos para modificar a un administrador.',
             ])->withInput();
         }
 
@@ -88,7 +92,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'username' => $this->usernameRules($user),
             'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'phone' => ['nullable', 'string', 'digits:8'],
             'position' => ['nullable', 'string', 'max:255'],
             'role' => ['required', Rule::in(array_keys(User::roleOptions()))],
             'permissions' => ['nullable', 'array'],
@@ -97,27 +101,31 @@ class UserController extends Controller
             'is_active' => ['nullable', 'boolean'],
         ], [
             // 👇 MENSAJES PERSONALIZADOS 👇
-            'password.required' => 'La contraseña es obligatoria.',
-            'password.min' => 'La contraseña debe tener al menos :min caracteres.',
-            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
+            'name.required' => 'El nombre es obligatorio.',
+            'username.required' => 'El nombre de usuario es obligatorio.',
+            'email.required' => 'El correo electrónico es obligatorio.',
+            'email.email' => 'Ingresa un correo electrónico válido.',
             'email.unique' => 'Este correo ya está registrado en el sistema.',
             'username.unique' => 'Este nombre de usuario ya está en uso.',
+            'phone.digits' => 'El teléfono debe tener exactamente 8 dígitos.',
+            'role.required' => 'El tipo de acceso es obligatorio.',
+            'password.min' => 'La contraseña debe tener al menos :min caracteres.',
+            'password.confirmed' => 'La confirmación de la contraseña no coincide.',
         ] );
-
 
         // 🛡️ PROTECCIÓN: Evitar que el admin se desactive o se quite el rol a sí mismo
         if (Auth::id() === $user->id) {
             // Si está intentando desactivarse
             if (!($validated['is_active'] ?? false)) {
                 return back()->withErrors([
-                    'is_active' => 'No puedes desactivar tu propio usuario mientras estás autenticado.',
+                    'permission_error' => 'No puedes desactivar tu propio usuario mientras estás autenticado.',
                 ])->withInput();
             }
             
             // Si está intentando quitarse el rol de admin
             if ($validated['role'] !== \App\Models\User::ROLE_ADMIN) {
                 return back()->withErrors([
-                    'role' => 'No puedes quitarte el rol de administrador a ti mismo.',
+                    'permission_error' => 'No puedes quitarte el rol de administrador a ti mismo.',
                 ])->withInput();
             }
         }
@@ -127,7 +135,7 @@ class UserController extends Controller
             $adminCount = User::query()->where('role', User::ROLE_ADMIN)->count();
             if ($adminCount <= 1) {
                 return back()->withErrors([
-                    'role' => 'No se puede quitar el rol de administrador. Debe haber al menos un admin en el sistema.',
+                    'permission_error' => 'No se puede quitar el rol de administrador. Debe haber al menos un admin en el sistema.',
                 ])->withInput();
             }
         }

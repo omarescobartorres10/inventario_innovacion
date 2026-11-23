@@ -189,6 +189,12 @@ class EquipmentController extends Controller
 
     public function destroy(Equipment $equipment): RedirectResponse
     {
+        if ($equipment->movements()->exists()) {
+            return redirect()
+                ->route('equipments.index')
+                ->withErrors(['equipment' => 'No se puede eliminar el equipo porque tiene historial de movimientos.']);
+        }
+
         $equipment->delete();
 
         return redirect()
@@ -440,3 +446,5 @@ class EquipmentController extends Controller
             ->implode(' '));
     }
 }
+
+

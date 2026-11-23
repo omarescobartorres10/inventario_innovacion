@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-    @php($currentUser = auth()->user())
+    @php
+        $currentUser = auth()->user();
+    @endphp
     <header class="page-header">
         <div>
             <h1>Historial de actas</h1>
@@ -108,7 +110,7 @@
                         </div>
                     @endif
 
-                    @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_DELIVERY_ACTS) && ! $record->annulled_at)
+                    @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_DELIVERY_ACTS) && ! $record->annulled_at)
                         <div class="toolbar" style="margin-top: 16px;">
                             <a href="{{ route('inventory.delivery-act.edit', $record) }}" class="button-link dark">
                                 <i class="fa-solid fa-pen-to-square"></i> Corregir acta

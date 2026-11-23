@@ -798,6 +798,8 @@
             background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
             border-color: #fda4af;
             color: #9f1239;
+            position: relative;
+            z-index: 60;
         }
 
         .errors {

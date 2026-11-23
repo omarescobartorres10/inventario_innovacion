@@ -5,6 +5,7 @@
         $currentUser = auth()->user();
         $userFormFields = ['name', 'username', 'email', 'phone', 'position', 'role', 'permissions', 'is_active', 'password', 'password_confirmation'];
         $hasUserFormErrors = $errors->hasAny($userFormFields);
+        $hasPermissionError = $errors->has('permission_error');
     @endphp
 
     <header class="page-header">
@@ -13,7 +14,7 @@
             <p>Administra credenciales y la informacion basica del personal con acceso al sistema.</p>
         </div>
         <div class="toolbar">
-            @if ($currentUser->canCreateIn(\App\Models\User::PERMISSION_USERS))
+            @if ($currentUser?->canCreateIn(\App\Models\User::PERMISSION_USERS))
                 <button type="button" class="button-link dark" data-open-modal="user-create-modal"><i class="fa-solid fa-user-plus"></i> Nuevo usuario</button>
             @endif
         </div>
@@ -39,7 +40,7 @@
                         <th>Cargo</th>
                         <th>Acceso</th>
                         <th>Estado</th>
-                        @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_USERS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_USERS))
+                        @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_USERS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_USERS))
                             <th>Acciones</th>
                         @endif
                     </tr>
@@ -64,13 +65,13 @@
                                     {{ $user->is_active ? 'Activo' : 'Inactivo' }}
                                 </span>
                             </td>
-                            @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_USERS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_USERS))
+                            @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_USERS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_USERS))
                                 <td>
                                     <div class="toolbar">
-                                        @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_USERS))
+                                        @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_USERS))
                                             <a href="{{ route('users.index', ['edit' => $user->id]) }}" class="button-link dark"><i class="fa-solid fa-pen"></i> Editar</a>
                                         @endif
-                                        @if ($currentUser->canDeleteIn(\App\Models\User::PERMISSION_USERS) && auth()->id() !== $user->id)
+                                        @if ($currentUser?->canDeleteIn(\App\Models\User::PERMISSION_USERS) && auth()->id() !== $user->id)
                                             <form action="{{ route('users.destroy', $user) }}" method="POST" data-confirm-delete="Se eliminará este usuario. Continuar?">
                                                 @csrf
                                                 @method('DELETE')
@@ -83,7 +84,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ ($currentUser->canEditIn(\App\Models\User::PERMISSION_USERS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_USERS)) ? 8 : 7 }}">No hay usuarios registrados.</td>
+                            <td colspan="{{ ($currentUser?->canEditIn(\App\Models\User::PERMISSION_USERS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_USERS)) ? 8 : 7 }}">No hay usuarios registrados.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -93,7 +94,7 @@
         @include('inventory.partials.pagination', ['paginator' => $users])
     </section>
 
-    @if ($currentUser->canCreateIn(\App\Models\User::PERMISSION_USERS))
+    @if ($currentUser?->canCreateIn(\App\Models\User::PERMISSION_USERS))
         <div id="user-create-modal" class="modal {{ $hasUserFormErrors && !request('edit') ? 'is-visible' : '' }}">
             <div class="modal-card">
                 <div class="modal-head">
@@ -112,7 +113,7 @@
         </div>
     @endif
 
-    @if ($editingUser && $currentUser->canEditIn(\App\Models\User::PERMISSION_USERS))
+    @if ($editingUser && $currentUser?->canEditIn(\App\Models\User::PERMISSION_USERS) && !$hasPermissionError)
         <div id="user-edit-modal" class="modal is-visible">
             <div class="modal-card">
                 <div class="modal-head">

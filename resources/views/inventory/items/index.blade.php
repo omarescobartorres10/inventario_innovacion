@@ -1,14 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
-    @php($currentUser = auth()->user())
+    @php
+        $currentUser = auth()->user();
+        $itemFormFields = ['name', 'brand', 'model', 'unit'];
+        $hasItemFormErrors = $errors->hasAny($itemFormFields);
+    @endphp
     <header class="page-header">
         <div>
             <h1>Insumos</h1>
             <p>Registra nuevos insumos y consulta el listado paginado de productos ingresados al inventario.</p>
         </div>
         <div class="toolbar">
-            @if ($currentUser->canCreateIn(\App\Models\User::PERMISSION_ITEMS))
+            @if ($currentUser?->canCreateIn(\App\Models\User::PERMISSION_ITEMS))
                 <button type="button" class="button-link dark" data-open-modal="item-modal"><i class="fa-solid fa-plus"></i> Nuevo insumo</button>
             @endif
             <a href="{{ route('inventory.exports.items-summary.pdf') }}" class="button-link dark"><i class="fa-solid fa-file-pdf"></i> Resumen PDF</a>
@@ -43,7 +47,7 @@
                         <th class="text-right">Bodega</th>
                         <th class="text-right">Oficina</th>
                         <th class="text-right">Total</th>
-                        @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_ITEMS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_ITEMS))
+                        @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_ITEMS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_ITEMS))
                             <th class="text-right">Acciones</th>
                         @endif
                     </tr>
@@ -64,15 +68,15 @@
                             <td class="text-right">
                                 <span class="pill {{ $item->total_stock > 0 ? 'green' : 'rose' }}">{{ $item->total_stock }}</span>
                             </td>
-                            @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_ITEMS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_ITEMS))
+                            @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_ITEMS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_ITEMS))
                                 <td class="text-right">
                                     <div class="table-actions">
-                                        @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_ITEMS))
+                                        @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_ITEMS))
                                             <button type="button" class="button-link dark" data-open-modal="edit-item-modal-{{ $item->id }}">
                                                 <i class="fa-solid fa-pen-to-square"></i> Editar
                                             </button>
                                         @endif
-                                        @if ($currentUser->canDeleteIn(\App\Models\User::PERMISSION_ITEMS))
+                                        @if ($currentUser?->canDeleteIn(\App\Models\User::PERMISSION_ITEMS))
                                             <form action="{{ route('inventory.items.destroy', $item) }}" method="POST" data-confirm-delete="Se eliminará este insumo. Deseas continuar?" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
@@ -87,7 +91,7 @@
                         </tr>
                     @empty
                         <tr data-empty-row>
-                            <td colspan="{{ ($currentUser->canEditIn(\App\Models\User::PERMISSION_ITEMS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_ITEMS)) ? 8 : 7 }}">No hay insumos registrados.</td>
+                            <td colspan="{{ ($currentUser?->canEditIn(\App\Models\User::PERMISSION_ITEMS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_ITEMS)) ? 8 : 7 }}">No hay insumos registrados.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -98,8 +102,8 @@
         @include('inventory.partials.pagination', ['paginator' => $items])
     </section>
 
-    @if ($currentUser->canCreateIn(\App\Models\User::PERMISSION_ITEMS))
-        <div id="item-modal" class="modal {{ $errors->any() ? 'is-visible' : '' }}">
+    @if ($currentUser?->canCreateIn(\App\Models\User::PERMISSION_ITEMS))
+        <div id="item-modal" class="modal {{ $hasItemFormErrors ? 'is-visible' : '' }}">
             <div class="modal-card">
                 <div class="modal-head">
                     <div>
@@ -135,7 +139,7 @@
         </div>
     @endif
 
-    @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_ITEMS))
+    @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_ITEMS))
         @foreach ($items as $item)
             <div id="edit-item-modal-{{ $item->id }}" class="modal">
                 <div class="modal-card">

@@ -1,14 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
-    @php($currentUser = auth()->user())
+    @php
+        $currentUser = auth()->user();
+        $equipmentFormFields = ['category', 'brand', 'model', 'serial_number', 'asset_code', 'processor', 'ram', 'storage', 'operating_system', 'status', 'notes'];
+        $hasEquipmentFormErrors = $errors->hasAny($equipmentFormFields);
+    @endphp
     <header class="page-header">
         <div>
             <h1>Equipos</h1>
             <p>Administra equipos tecnologicos y sus caracteristicas sin mezclar el alta del activo con la asignacion.</p>
         </div>
         <div class="toolbar">
-            @if ($currentUser->canCreateIn(\App\Models\User::PERMISSION_EQUIPMENTS))
+            @if ($currentUser?->canCreateIn(\App\Models\User::PERMISSION_EQUIPMENTS))
                 <button type="button" class="button-link dark" data-open-modal="equipment-create-modal"><i class="fa-solid fa-plus"></i> Nuevo equipo</button>
             @endif
         </div>
@@ -63,7 +67,7 @@
                         <th>Serie / Activo</th>
                         <th>Caracteristicas</th>
                         <th>Estado</th>
-                        @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_EQUIPMENTS))
+                        @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_EQUIPMENTS))
                             <th>Acciones</th>
                         @endif
                     </tr>
@@ -87,13 +91,13 @@
                                 SO: {{ $equipment->operating_system ?: '-' }}
                             </td>
                             <td><span class="pill {{ $equipment->status === 'available' ? 'green' : ($equipment->status === 'assigned' ? 'blue' : ($equipment->status === 'maintenance' ? 'amber' : 'rose')) }}">{{ $statuses[$equipment->status] ?? $equipment->status }}</span></td>
-                            @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_EQUIPMENTS))
+                            @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_EQUIPMENTS))
                                 <td>
                                     <div class="toolbar">
-                                        @if ($currentUser->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS))
+                                        @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS))
                                             <a href="{{ route('equipments.index', ['edit' => $equipment->id]) }}" class="button-link dark"><i class="fa-solid fa-pen"></i> Editar</a>
                                         @endif
-                                        @if ($currentUser->canDeleteIn(\App\Models\User::PERMISSION_EQUIPMENTS))
+                                        @if ($currentUser?->canDeleteIn(\App\Models\User::PERMISSION_EQUIPMENTS))
                                             <form action="{{ route('equipments.destroy', $equipment) }}" method="POST" data-confirm-delete="Se eliminará este equipo. Continuar?">
                                                 @csrf
                                                 @method('DELETE')
@@ -106,7 +110,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ ($currentUser->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS) || $currentUser->canDeleteIn(\App\Models\User::PERMISSION_EQUIPMENTS)) ? 6 : 5 }}">No hay equipos registrados.</td>
+                            <td colspan="{{ ($currentUser?->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_EQUIPMENTS)) ? 6 : 5 }}">No hay equipos registrados.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -116,8 +120,8 @@
         @include('inventory.partials.pagination', ['paginator' => $equipments])
     </section>
 
-    @if ($currentUser->canCreateIn(\App\Models\User::PERMISSION_EQUIPMENTS))
-        <div id="equipment-create-modal" class="modal {{ $errors->any() && !request('edit') ? 'is-visible' : '' }}">
+    @if ($currentUser?->canCreateIn(\App\Models\User::PERMISSION_EQUIPMENTS))
+        <div id="equipment-create-modal" class="modal {{ $hasEquipmentFormErrors && !request('edit') ? 'is-visible' : '' }}">
             <div class="modal-card">
                 <div class="modal-head">
                     <div>
@@ -135,7 +139,7 @@
         </div>
     @endif
 
-    @if ($editingEquipment && $currentUser->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS))
+    @if ($editingEquipment && $currentUser?->canEditIn(\App\Models\User::PERMISSION_EQUIPMENTS))
         <div id="equipment-edit-modal" class="modal is-visible">
             <div class="modal-card">
                 <div class="modal-head">
