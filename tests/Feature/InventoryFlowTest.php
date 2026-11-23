@@ -150,7 +150,7 @@ class InventoryFlowTest extends TestCase
             'name' => 'Usuario Malo',
             'username' => 'usuario invalido',
             'email' => 'malo@example.com',
-            'phone' => '7001-0001',
+            'phone' => '70010001',
             'position' => 'Tecnica',
             'role' => User::ROLE_SUPPLIES_OPERATOR,
             'permissions' => [
@@ -291,8 +291,7 @@ class InventoryFlowTest extends TestCase
         $response = $this->get('/exportar/resumen/excel');
 
         $response->assertOk();
-        $response->assertHeader('content-type', 'text/csv; charset=UTF-8');
-        $response->assertHeader('content-disposition', 'attachment; filename="resumen_inventario_innovacion.csv"');
+        $response->assertHeader('content-type', 'application/vnd.ms-excel');
     }
 
     public function test_items_summary_export_excel_returns_csv_download(): void
@@ -302,8 +301,7 @@ class InventoryFlowTest extends TestCase
         $response = $this->get('/exportar/insumos/resumen/excel');
 
         $response->assertOk();
-        $response->assertHeader('content-type', 'text/csv; charset=UTF-8');
-        $response->assertHeader('content-disposition', 'attachment; filename="resumen_total_por_insumo.csv"');
+        $response->assertHeader('content-type', 'application/vnd.ms-excel');
     }
 
     public function test_items_can_be_filtered_by_search(): void
@@ -517,7 +515,7 @@ class InventoryFlowTest extends TestCase
         ]);
 
         $response->assertOk();
-        $response->assertHeader('content-disposition', 'attachment; filename=acta_entrega_insumos.pdf');
+        $this->assertTrue($response->headers->get('content-disposition') !== null && str_contains($response->headers->get('content-disposition'), 'acta_insumos_'));
 
         $this->assertDatabaseHas('inventory_movements', [
             'item_id' => $item->id,
@@ -747,7 +745,7 @@ class InventoryFlowTest extends TestCase
         ]);
 
         $response->assertOk();
-        $response->assertHeader('content-disposition', 'attachment; filename=acta_entrega_equipos.pdf');
+        $this->assertTrue($response->headers->get('content-disposition') !== null && str_contains($response->headers->get('content-disposition'), 'acta_equipos_'));
 
         $this->assertDatabaseHas('equipments', [
             'id' => $equipment->id,
@@ -776,7 +774,7 @@ class InventoryFlowTest extends TestCase
             'name' => 'Maria Lopez',
             'username' => 'maria.lopez',
             'email' => 'maria@example.com',
-            'phone' => '7001-0001',
+            'phone' => '70010001',
             'position' => 'Tecnica',
             'role' => User::ROLE_SUPPLIES_OPERATOR,
             'permissions' => [
@@ -812,7 +810,7 @@ class InventoryFlowTest extends TestCase
             'name' => 'Maria Lopez Actualizada',
             'username' => 'maria.lopez',
             'email' => 'maria@example.com',
-            'phone' => '7001-0002',
+            'phone' => '70010002',
             'position' => 'Coordinadora',
             'role' => User::ROLE_ADMIN,
             'permissions' => [

@@ -17,3 +17,5 @@ yarn-error.log
 /xdebug.ini
 /.junie/
 !.junie/guidelines/
+._*
+.DS_Store
