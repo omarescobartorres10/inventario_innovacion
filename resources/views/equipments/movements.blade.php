@@ -15,7 +15,7 @@
             @if ($currentUser?->canCreateIn(\App\Models\User::PERMISSION_EQUIPMENTS))
                 <button type="button" class="button-link dark" data-open-modal="equipment-movement-modal"><i class="fa-solid fa-right-left"></i> Nuevo movimiento</button>
             @endif
-            <a href="{{ route('equipments.movements.pdf', request()->query()) }}" class="button-link green"><i class="fa-solid fa-file-pdf"></i> Reporte PDF</a>
+            <a href="{{ route('equipments.movements.pdf', request()->query()) }}" class="button-link red"><i class="fa-solid fa-file-pdf"></i> Reporte PDF</a>
         </div>
     </header>
 

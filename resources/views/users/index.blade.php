@@ -55,9 +55,39 @@
                             <td>{{ $user->position ?: '-' }}</td>
                             <td>
                                 @if ($user->isAdmin())
-                                    Administrador
+                                    <span class="perm-badge usuarios" style="font-size:12px; padding: 4px 12px;">
+                                        <i class="fa-solid fa-crown" style="font-size:10px;"></i> Administrador
+                                    </span>
                                 @else
-                                    {{ implode(', ', $user->permissionLabels()) ?: 'Sin permisos' }}
+                                    @php
+                                        $groups = $user->permissionGroups();
+                                        $moduleClassMap = [
+                                            \App\Models\User::PERMISSION_DASHBOARD => 'dashboard',
+                                            \App\Models\User::PERMISSION_ITEMS => 'insumos',
+                                            \App\Models\User::PERMISSION_MOVEMENTS => 'movimientos',
+                                            \App\Models\User::PERMISSION_EQUIPMENTS => 'equipos',
+                                            \App\Models\User::PERMISSION_DELIVERY_ACTS => 'actas',
+                                            \App\Models\User::PERMISSION_USERS => 'usuarios',
+                                            \App\Models\User::PERMISSION_CATALOGS => 'catalogo',
+                                            \App\Models\User::PERMISSION_EXPORTS => 'exportaciones',
+                                        ];
+                                    @endphp
+                                    @if (empty($groups))
+                                        <span class="perm-badge default">Sin permisos</span>
+                                    @else
+                                        @foreach ($groups as $module => $group)
+                                            @php
+                                                $moduleClass = $moduleClassMap[$module] ?? 'default';
+                                                $isFull = $group['count'] === $group['total'];
+                                            @endphp
+                                            <span class="perm-group-badge perm-badge {{ $moduleClass }}" title="{{ $group['label'] }}: {{ implode(', ', $group['actions']) }}">
+                                                {{ $group['label'] }}
+                                                @if (!$isFull)
+                                                    <span class="perm-group-count">{{ $group['count'] }}/{{ $group['total'] }}</span>
+                                                @endif
+                                            </span>
+                                        @endforeach
+                                    @endif
                                 @endif
                             </td>
                             <td>

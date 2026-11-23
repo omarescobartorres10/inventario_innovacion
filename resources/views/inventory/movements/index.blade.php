@@ -22,7 +22,7 @@
                 <button type="button" class="button-link dark" data-open-modal="movement-modal"><i
                         class="fa-solid fa-plus"></i> Nuevo movimiento</button>
             @endif
-            <a href="{{ route('inventory.exports.summary.pdf') }}" class="button-link dark"><i
+            <a href="{{ route('inventory.exports.summary.pdf') }}" class="button-link red"><i
                     class="fa-solid fa-file-pdf"></i> Resumen PDF</a>
             <a href="{{ route('inventory.exports.summary.excel') }}" class="button-link green"><i
                     class="fa-solid fa-file-excel"></i> Resumen Excel</a>

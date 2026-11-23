@@ -287,4 +287,32 @@ class User extends Authenticatable
 
         return $labels;
     }
+
+    public function permissionGroups(): array
+    {
+        $matrix = self::permissionMatrix();
+        $normalized = self::normalizePermissions($this->permissions ?? []);
+        $groups = [];
+
+        foreach ($matrix as $module => $definition) {
+            $moduleActions = [];
+            foreach ($definition['actions'] as $action) {
+                $perm = self::composePermission($module, $action);
+                if (in_array($perm, $normalized, true)) {
+                    $moduleActions[] = self::actionLabel($action);
+                }
+            }
+
+            if (!empty($moduleActions)) {
+                $groups[$module] = [
+                    'label' => $definition['label'],
+                    'actions' => $moduleActions,
+                    'count' => count($moduleActions),
+                    'total' => count($definition['actions']),
+                ];
+            }
+        }
+
+        return $groups;
+    }
 }

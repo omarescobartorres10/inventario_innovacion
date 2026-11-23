@@ -592,6 +592,60 @@
             box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.1);
         }
 
+        .button-link.red,
+        button.red {
+            color: #fff;
+            background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%);
+            box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .button-link.red:hover,
+        button.red:hover {
+            background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        /* --- Permission Badges --- */
+        .perm-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+            line-height: 1.4;
+            white-space: nowrap;
+        }
+
+        .perm-badge.dashboard { background: #dbeafe; color: #1d4ed8; }
+        .perm-badge.insumos { background: #ccfbf1; color: #0f766e; }
+        .perm-badge.movimientos { background: #fef3c7; color: #92400e; }
+        .perm-badge.equipos { background: #e0e7ff; color: #3730a3; }
+        .perm-badge.actas { background: #fce7f3; color: #9d174d; }
+        .perm-badge.usuarios { background: #fee2e2; color: #991b1b; }
+        .perm-badge.catalogo { background: #f3e8ff; color: #6b21a8; }
+        .perm-badge.exportaciones { background: #ffedd5; color: #9a3412; }
+        .perm-badge.default { background: #f1f5f9; color: #475569; }
+
+        /* --- Grouped Permission Badge --- */
+        .perm-group-badge {
+            cursor: default;
+        }
+
+        .perm-group-count {
+            display: inline-block;
+            margin-left: 4px;
+            padding: 1px 6px;
+            border-radius: 999px;
+            font-size: 9px;
+            font-weight: 700;
+            line-height: 1.5;
+            background: rgba(0,0,0,0.12);
+            color: inherit;
+        }
+
         /* --- Search Select (Dropdown) --- */
         .search-select {
             position: relative;
@@ -1972,8 +2026,8 @@
                 @if (auth()->user()->hasPermission(\App\Models\User::PERMISSION_CATALOGS))
                     <a href="{{ route('catalogs.equipment-categories.index') }}"
                         class="{{ request()->routeIs('catalogs.*') ? 'active' : '' }}">
-                        <i class="fa-solid fa-folder-tree" aria-hidden="true"></i>
-                        <strong>Catalogo</strong>
+                        <i class="fa-solid fa-book-open" aria-hidden="true"></i>
+                        <strong>Catálogo</strong>
                     </a>
                 @endif
             </nav>
@@ -2029,10 +2083,25 @@
                 <div class="message ok">{{ session('status') }}</div>
             @endif
 
-            @if ($errors->any())
+            @php
+                $userFormFields = ['name', 'username', 'email', 'phone', 'position', 'role', 'permissions', 'is_active', 'password', 'password_confirmation'];
+                $hasUserFormErrors = $errors->hasAny($hasUserFormFields ?? $userFormFields);
+                $allErrors = $errors->all();
+                $generalErrors = array_filter($allErrors, function($error) {
+                    return str_contains($error, 'contraseña') === false
+                        && str_contains($error, 'nombre') === false
+                        && str_contains($error, 'correo') === false
+                        && str_contains($error, 'telefono') === false
+                        && str_contains($error, 'cargo') === false
+                        && str_contains($error, 'acceso') === false
+                        && str_contains($error, 'permiso') === false;
+                });
+            @endphp
+
+            @if (!empty($generalErrors))
                 <div class="message error">
                     <ul class="errors">
-                        @foreach ($errors->all() as $error)
+                        @foreach ($generalErrors as $error)
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>

@@ -15,7 +15,7 @@
             @if ($currentUser?->canCreateIn(\App\Models\User::PERMISSION_ITEMS))
                 <button type="button" class="button-link dark" data-open-modal="item-modal"><i class="fa-solid fa-plus"></i> Nuevo insumo</button>
             @endif
-            <a href="{{ route('inventory.exports.items-summary.pdf') }}" class="button-link dark"><i class="fa-solid fa-file-pdf"></i> Resumen PDF</a>
+            <a href="{{ route('inventory.exports.items-summary.pdf') }}" class="button-link red"><i class="fa-solid fa-file-pdf"></i> Resumen PDF</a>
             <a href="{{ route('inventory.exports.items-summary.excel') }}" class="button-link green"><i class="fa-solid fa-file-excel"></i> Resumen Excel</a>
         </div>
     </header>

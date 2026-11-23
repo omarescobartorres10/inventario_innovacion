@@ -152,7 +152,8 @@ class EquipmentController extends Controller
             'omittedMovements' => max($movements->count() - $visibleMovements->count(), 0),
         ])->setPaper('letter', 'portrait');
 
-        return $pdf->download('reporte_movimientos_equipos.pdf');
+        $timestamp = now()->timezone(config('app.timezone'))->format('Y-m-d_H-i-s');
+        return $pdf->download('reporte_movimientos_equipos_'.$timestamp.'.pdf');
     }
 
     public function store(Request $request): RedirectResponse
@@ -372,6 +373,7 @@ class EquipmentController extends Controller
     {
         return [
             'available' => 'Disponible',
+            'assigned' => 'Asignado',
             'maintenance' => 'Mantenimiento',
             'inactive' => 'Inactivo',
             'retired' => 'De baja',

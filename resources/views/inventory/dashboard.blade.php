@@ -7,8 +7,8 @@
             <p>Control de entradas y salidas de insumos con una vista general de stock, alertas de bajo inventario y actividad reciente.</p>
         </div>
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
-            <a href="{{ route('inventory.exports.summary.pdf') }}" class="pill dark"><i class="fa-solid fa-file-pdf"></i> Exportar PDF</a>
-            <a href="{{ route('inventory.exports.summary.excel') }}" class="pill green"><i class="fa-solid fa-file-excel"></i> Exportar Excel</a>
+            <a href="{{ route('inventory.exports.summary.pdf') }}" class="button-link red"><i class="fa-solid fa-file-pdf"></i> Exportar PDF</a>
+            <a href="{{ route('inventory.exports.summary.excel') }}" class="button-link green"><i class="fa-solid fa-file-excel"></i> Exportar Excel</a>
         </div>
     </header>
 

@@ -415,7 +415,8 @@ class InventoryController extends Controller
             ];
         });
 
-        DB::transaction(function () use ($validated, $rows, $fromLocation, $assignedArea, $areaName, $responsible, $pdfRows, $request) {
+        $record = null;
+        DB::transaction(function () use (&$record, $validated, $rows, $fromLocation, $assignedArea, $areaName, $responsible, $pdfRows, $request) {
             $performedAt = $validated['delivery_date'].' '.now()->timezone(config('app.timezone'))->format('H:i:s');
 
             $record = DeliveryRecord::query()->create([
@@ -467,7 +468,8 @@ class InventoryController extends Controller
             'letterheadPath' => public_path('membrete.png'),
         ]);
 
-        return $pdf->download('acta_entrega_insumos.pdf');
+        $filename = 'acta_insumos_'.$record->id.'_'.$validated['delivery_date'].'.pdf';
+        return $pdf->download($filename);
     }
 
     public function generateEquipmentDeliveryActPdf(Request $request): Response|RedirectResponse
@@ -507,7 +509,8 @@ class InventoryController extends Controller
         $responsible = $assignedArea->responsible_name ?: 'Sin responsable asignado';
         $areaName = $assignedArea->name;
 
-        DB::transaction(function () use ($validated, $equipments, $assignedArea, $areaName, $responsible, $rows, $request) {
+        $record = null;
+        DB::transaction(function () use (&$record, $validated, $equipments, $assignedArea, $areaName, $responsible, $rows, $request) {
             foreach ($equipments as $equipment) {
                 $equipment->update([
                     'status' => 'assigned',
@@ -567,7 +570,8 @@ class InventoryController extends Controller
             'letterheadPath' => public_path('membrete.png'),
         ]);
 
-        return $pdf->download('acta_entrega_equipos.pdf');
+        $filename = 'acta_equipos_'.$record->id.'_'.$validated['delivery_date'].'.pdf';
+        return $pdf->download($filename);
     }
 
     public function exportSummaryPdf(): Response
@@ -588,7 +592,8 @@ class InventoryController extends Controller
             'generatedAt' => now()->timezone(config('app.timezone'))->format('d/m/Y H:i'),
         ]);
 
-        return $pdf->download('resumen_inventario_innovacion.pdf');
+        $timestamp = now()->timezone(config('app.timezone'))->format('Y-m-d_H-i-s');
+        return $pdf->download('resumen_inventario_'.$timestamp.'.pdf');
     }
 
     public function exportSummaryExcel(): Response
@@ -639,7 +644,8 @@ class InventoryController extends Controller
             ];
         }
 
-        return $this->excelResponse($lines, 'resumen_inventario_innovacion.xls');
+        $timestamp = now()->timezone(config('app.timezone'))->format('Y-m-d_H-i-s');
+        return $this->excelResponse($lines, 'resumen_inventario_'.$timestamp.'.xls');
     }
 
     public function exportItemsSummaryPdf(): Response
@@ -652,7 +658,8 @@ class InventoryController extends Controller
             'generatedAt' => now()->timezone(config('app.timezone'))->format('d/m/Y H:i'),
         ]);
 
-        return $pdf->download('resumen_insumos_inventario.pdf');
+        $timestamp = now()->timezone(config('app.timezone'))->format('Y-m-d_H-i-s');
+        return $pdf->download('resumen_insumos_'.$timestamp.'.pdf');
     }
 
     public function exportItemsSummaryExcel(): Response
@@ -674,7 +681,8 @@ class InventoryController extends Controller
         $lines[] = ['Total de insumos', $items->count()];
         $lines[] = ['Stock global', $items->sum('total_stock')];
 
-        return $this->excelResponse($lines, 'resumen_total_por_insumo.xls');
+        $timestamp = now()->timezone(config('app.timezone'))->format('Y-m-d_H-i-s');
+        return $this->excelResponse($lines, 'resumen_insumos_'.$timestamp.'.xls');
     }
 
     public function storeItem(Request $request): RedirectResponse
@@ -1095,6 +1103,8 @@ class InventoryController extends Controller
                 ->implode(','))
             ->implode("\n");
 
+        // BOM UTF-8 para que Excel reconozca los acentos correctamente
+        $content = "\xEF\xBB\xBF" . $content;
         return response($content, 200, [
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="'.$filename.'"',
@@ -1168,6 +1178,8 @@ class InventoryController extends Controller
         $html .= '</table></body></html>';
 
         // Descargar el archivo con extensión .xls
+        // BOM UTF-8 para que Excel reconozca los acentos correctamente
+        $html = "\xEF\xBB\xBF" . $html;
         return response($html, 200, [
             'Content-Type' => 'application/vnd.ms-excel',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
