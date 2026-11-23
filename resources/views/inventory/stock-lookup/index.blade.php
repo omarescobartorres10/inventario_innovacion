@@ -70,9 +70,11 @@
             @endforeach
         </div>
 
-        <div class="message error" hidden data-stock-empty>
-            No se encontraron insumos con ese criterio.
-        </div>
+        @if ($items->count() > 0)
+            <div class="message error" hidden data-stock-empty>
+                No se encontraron insumos con ese criterio.
+            </div>
+        @endif
     </section>
 
     <script>

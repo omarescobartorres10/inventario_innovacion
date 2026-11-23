@@ -212,6 +212,8 @@ class EquipmentController extends Controller
             'assigned_area_id' => ['nullable', 'integer', Rule::exists('municipal_areas', 'id')],
             'assigned_at' => ['nullable', 'date'],
             'notes' => ['nullable', 'string', 'max:2000'],
+            'area_responsible_name' => ['nullable', 'string', 'max:255'],
+            'area_institutional_email' => ['nullable', 'email', 'max:255'],
         ]);
 
         $hasAssignment = filled($validated['assigned_user_id'] ?? null) || filled($validated['assigned_area_id'] ?? null);
@@ -232,9 +234,25 @@ class EquipmentController extends Controller
         if (! empty($validated['assigned_area_id'])) {
             $area = MunicipalArea::query()->find($validated['assigned_area_id']);
             $validated['assigned_area'] = $area?->name;
+
+            // Actualizar responsable y correo del área si se proporcionaron
+            if ($area && (filled($validated['area_responsible_name'] ?? null) || filled($validated['area_institutional_email'] ?? null))) {
+                $areaUpdates = [];
+                if (filled($validated['area_responsible_name'])) {
+                    $areaUpdates['responsible_name'] = $validated['area_responsible_name'];
+                }
+                if (filled($validated['area_institutional_email'])) {
+                    $areaUpdates['institutional_email'] = $validated['area_institutional_email'];
+                }
+                $area->update($areaUpdates);
+            }
         } else {
             $validated['assigned_area'] = null;
         }
+
+        // Limpiar campos de área del equipo
+        unset($validated['area_responsible_name']);
+        unset($validated['area_institutional_email']);
 
         $equipment->update($validated);
 

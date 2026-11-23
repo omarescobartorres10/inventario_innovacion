@@ -98,7 +98,12 @@
                                             <a href="{{ route('equipments.index', ['edit' => $equipment->id]) }}" class="button-link dark"><i class="fa-solid fa-pen"></i> Editar</a>
                                         @endif
                                         @if ($currentUser?->canDeleteIn(\App\Models\User::PERMISSION_EQUIPMENTS))
-                                            <form action="{{ route('equipments.destroy', $equipment) }}" method="POST" data-confirm-delete="Se eliminará este equipo. Continuar?">
+                                            @php
+                                                $deleteMessage = $equipment->status === 'assigned'
+                                                    ? 'Este equipo está asignado a {{ $equipment->assignedUser?->name ?: $equipment->assignedArea?->name }}. Si lo eliminas, se perderá el registro de asignación. ¿Continuar?'
+                                                    : 'Se eliminará este equipo. Continuar?';
+                                            @endphp
+                                            <form action="{{ route('equipments.destroy', $equipment) }}" method="POST" data-confirm-delete="{{ $deleteMessage }}">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit"><i class="fa-solid fa-trash"></i> Eliminar</button>

@@ -6,7 +6,20 @@
         $userFormFields = ['name', 'username', 'email', 'phone', 'position', 'role', 'permissions', 'is_active', 'password', 'password_confirmation'];
         $hasUserFormErrors = $errors->hasAny($userFormFields);
         $hasPermissionError = $errors->has('permission_error');
+        $hasUserError = $errors->has('user');
     @endphp
+
+    @if ($hasPermissionError)
+        <div class="message error" style="margin-bottom: 18px;">
+            {{ $errors->first('permission_error') }}
+        </div>
+    @endif
+
+    @if ($hasUserError)
+        <div class="message error" style="margin-bottom: 18px;">
+            {{ $errors->first('user') }}
+        </div>
+    @endif
 
     <header class="page-header">
         <div>
@@ -40,7 +53,7 @@
                         <th>Cargo</th>
                         <th>Acceso</th>
                         <th>Estado</th>
-                        @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_USERS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_USERS))
+                        @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_USERS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_USERS) || !$currentUser?->isAdmin())
                             <th>Acciones</th>
                         @endif
                     </tr>
@@ -95,26 +108,30 @@
                                     {{ $user->is_active ? 'Activo' : 'Inactivo' }}
                                 </span>
                             </td>
-                            @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_USERS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_USERS))
+                            @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_USERS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_USERS) || !$currentUser?->isAdmin())
                                 <td>
-                                    <div class="toolbar">
-                                        @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_USERS))
-                                            <a href="{{ route('users.index', ['edit' => $user->id]) }}" class="button-link dark"><i class="fa-solid fa-pen"></i> Editar</a>
-                                        @endif
-                                        @if ($currentUser?->canDeleteIn(\App\Models\User::PERMISSION_USERS) && auth()->id() !== $user->id)
-                                            <form action="{{ route('users.destroy', $user) }}" method="POST" data-confirm-delete="Se eliminará este usuario. Continuar?">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit"><i class="fa-solid fa-trash"></i> Eliminar</button>
-                                            </form>
-                                        @endif
-                                    </div>
+                                    @if (($currentUser?->canEditIn(\App\Models\User::PERMISSION_USERS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_USERS)) && ($currentUser?->isAdmin() || !$user->isAdmin()))
+                                        <div class="toolbar">
+                                            @if ($currentUser?->canEditIn(\App\Models\User::PERMISSION_USERS) && ($currentUser?->isAdmin() || !$user->isAdmin()))
+                                                <a href="{{ route('users.index', ['edit' => $user->id]) }}" class="button-link dark"><i class="fa-solid fa-pen"></i> Editar</a>
+                                            @endif
+                                            @if ($currentUser?->canDeleteIn(\App\Models\User::PERMISSION_USERS) && auth()->id() !== $user->id && ($currentUser?->isAdmin() || !$user->isAdmin()))
+                                                <form action="{{ route('users.destroy', $user) }}" method="POST" data-confirm-delete="Se eliminará este usuario. Continuar?">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"><i class="fa-solid fa-trash"></i> Eliminar</button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span class="muted">Sin acceso</span>
+                                    @endif
                                 </td>
                             @endif
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="{{ ($currentUser?->canEditIn(\App\Models\User::PERMISSION_USERS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_USERS)) ? 8 : 7 }}">No hay usuarios registrados.</td>
+                            <td colspan="{{ ($currentUser?->canEditIn(\App\Models\User::PERMISSION_USERS) || $currentUser?->canDeleteIn(\App\Models\User::PERMISSION_USERS) || !$currentUser?->isAdmin()) ? 8 : 7 }}">No hay usuarios registrados.</td>
                         </tr>
                     @endforelse
                 </tbody>

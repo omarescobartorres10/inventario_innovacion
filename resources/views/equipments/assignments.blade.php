@@ -175,11 +175,11 @@
                     <div class="field-grid" data-area-summary>
                         <div>
                             <label>Responsable del area</label>
-                            <input type="text" value="{{ $editingEquipment->assignedArea?->responsible_name }}" readonly data-area-responsible>
+                            <input type="text" name="area_responsible_name" value="{{ old('area_responsible_name', $editingEquipment->assignedArea?->responsible_name) }}" data-area-responsible placeholder="Nombre del responsable del area">
                         </div>
                         <div>
                             <label>Correo institucional</label>
-                            <input type="text" value="{{ $editingEquipment->assignedArea?->institutional_email }}" readonly data-area-email>
+                            <input type="email" name="area_institutional_email" value="{{ old('area_institutional_email', $editingEquipment->assignedArea?->institutional_email) }}" data-area-email placeholder="correo@ejemplo.com">
                         </div>
                     </div>
 
@@ -234,8 +234,22 @@
                 const responsible = selected?.dataset.responsible || '';
                 const email = selected?.dataset.email || '';
 
-                areaResponsible.value = responsible;
-                areaEmail.value = email;
+                // Solo pre-llenar si los campos están vacíos (no sobrescribir edición manual)
+                if (responsible && !areaResponsible.value) {
+                    areaResponsible.value = responsible;
+                }
+                if (email && !areaEmail.value) {
+                    areaEmail.value = email;
+                }
+
+                // Si no hay datos del área, usar los del option
+                if (!responsible) {
+                    areaResponsible.value = '';
+                }
+                if (!email) {
+                    areaEmail.value = '';
+                }
+
                 areaSummary.hidden = !selected?.value;
             };
 
