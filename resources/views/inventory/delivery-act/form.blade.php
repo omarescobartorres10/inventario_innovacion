@@ -227,6 +227,7 @@
 
                 const filterOptions = () => {
                     const term = input.value.trim().toLowerCase();
+                    console.log('Filtering with term:', term);
                     let visibleCount = 0;
 
                     options.forEach((option) => {
@@ -238,24 +239,35 @@
                         }
                     });
 
+                    console.log('Visible options:', visibleCount);
                     empty.hidden = visibleCount !== 0;
                 };
 
                 input.addEventListener('focus', () => {
-                    openMenu();
-                    filterOptions();
-                });
-
-                input.addEventListener('input', () => {
+                    // Guardar etiqueta/valor actual y limpiar para mostrar todas las opciones
+                    input._prevLabel = input.value;
+                    input._prevValue = valueField.value;
+                    // Limpiar campo visible y el valor oculto para que el filtro muestre todo
+                    input.value = '';
                     valueField.value = '';
                     openMenu();
                     filterOptions();
                 });
 
+                input.addEventListener('input', () => {
+                    // No need to modify hidden value here; just filter the options
+                    filterOptions();
+                });
+                // Also filter on keyup for better compatibility
+                input.addEventListener('keyup', filterOptions);
+
                 options.forEach((option) => {
                     option.addEventListener('click', () => {
                         input.value = option.dataset.label;
                         valueField.value = option.dataset.value;
+                        // Actualizar el respaldo para que el clic externo no restaure el anterior
+                        input._prevLabel = option.dataset.label;
+                        input._prevValue = option.dataset.value;
                         closeMenu();
                         input.dispatchEvent(new CustomEvent('searchselect:change', { bubbles: true }));
                     });
@@ -263,6 +275,11 @@
 
                 document.addEventListener('click', (event) => {
                     if (!root.contains(event.target)) {
+                        // Si el usuario no seleccionó nada, restaurar la selección anterior
+                        if (!valueField.value && input._prevLabel !== undefined) {
+                            input.value = input._prevLabel;
+                            valueField.value = input._prevValue || '';
+                        }
                         closeMenu();
                     }
                 });

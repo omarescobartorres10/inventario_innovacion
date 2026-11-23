@@ -592,6 +592,101 @@
             box-shadow: var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,0.1);
         }
 
+        /* --- Search Select (Dropdown) --- */
+        .search-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-select input[data-search-input] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-sm);
+            font: inherit;
+            font-size: 14px;
+            background: #fff;
+            color: var(--ink);
+            transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+            outline: none;
+        }
+
+        .search-select input[data-search-input]:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(11, 93, 86, 0.12);
+        }
+
+        .search-select-menu {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            max-height: 240px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-lg);
+            z-index: 100;
+            padding: 4px 0;
+        }
+
+        .search-select-menu::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .search-select-menu::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .search-select-menu::-webkit-scrollbar-thumb {
+            background: var(--line);
+            border-radius: 3px;
+        }
+
+        /* Override global button styles for search-select options */
+        .search-select-option {
+            display: block !important;
+            width: 100% !important;
+            text-align: left !important;
+            justify-content: flex-start !important;
+            padding: 10px 14px !important;
+            border-radius: 0 !important;
+            border: none !important;
+            background: transparent !important;
+            color: var(--ink) !important;
+            font-size: 14px !important;
+            font-weight: 400 !important;
+            line-height: 1.4 !important;
+            cursor: pointer !important;
+            transition: background-color var(--transition-fast) !important;
+            box-shadow: none !important;
+            transform: none !important;
+            position: relative !important;
+            overflow: visible !important;
+        }
+
+        .search-select-option::after {
+            display: none !important;
+        }
+
+        .search-select-option:hover {
+            background: var(--green-soft) !important;
+            transform: none !important;
+        }
+
+        .search-select-option:active {
+            background: #99f6e4 !important;
+            transform: none !important;
+        }
+
+        .search-select-empty {
+            padding: 12px 14px;
+            font-size: 13px;
+            color: var(--muted);
+            text-align: center;
+        }
+
         /* --- Grids & Layout Helpers --- */
         .grid-2 {
             display: grid;
